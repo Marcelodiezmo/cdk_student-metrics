@@ -17,11 +17,31 @@ class StudentMetricsStack(core.Stack):
         # Lambda for mostPopular path
         lambda_mostpopular = _lambda.Function(
             self,
-            'lambda_metrics',
+            'student_metrics_mostpopular',
             code=_lambda.Code.from_asset(path.join(this_dir,'lambdas')),
             handler='student_metrics_mostpopular.handler',
             runtime=_lambda.Runtime.PYTHON_3_8,
-            description='Lambda to get information about user metrics'
+            description='Lambda to get information about the most popular course'
+        )
+
+        # Lambda for courseMonth path
+        lambda_coursemonth = _lambda.Function(
+            self,
+            'student_metrics_coursemonth',
+            code=_lambda.Code.from_asset(path.join(this_dir,'lambdas')),
+            handler='student_metrics_coursemonth.handler',
+            runtime=_lambda.Runtime.PYTHON_3_8,
+            description='Lambda to get information about the Course of the Month'
+        )
+
+        # Lambda for Ranking Company
+        lambda_rankingcompany = _lambda.Function(
+            self,
+            'student_metrics_rankingcompany',
+            code=_lambda.Code.from_asset(path.join(this_dir,'lambdas')),
+            handler='student_metrics_rankingcompany.handler',
+            runtime=_lambda.Runtime.PYTHON_3_8,
+            description='Lambda to get information about the students ranking into the company'
         )
 
         api = _agw.RestApi(
@@ -30,8 +50,14 @@ class StudentMetricsStack(core.Stack):
             description='API for users metrics'
         )
 
-        # Integrate API and lambda function
-        events_integration = _agw.LambdaIntegration(lambda_mostpopular)
+        # Integrate API and mostpopular lambda
+        most_popular_integration = _agw.LambdaIntegration(lambda_mostpopular)
+
+        # Integrate API and courseMonth lambda
+        course_month_integration = _agw.LambdaIntegration(lambda_coursemonth)
+
+        # Integrate API and rankingcompany lambda
+        ranking_company_integration = _agw.LambdaIntegration(lambda_rankingcompany)
 
         # Main Resources
         user_resource = api.root.add_resource("Users")
@@ -45,6 +71,16 @@ class StudentMetricsStack(core.Stack):
         # Paths Methods
         most_popular_method = most_popular_resource.add_method(
             "GET",
-            events_integration
+            most_popular_integration
             # auth
+        )
+
+        course_month_method = course_month_resource.add_method(
+            "GET",
+            course_month_integration
+        )
+
+        ranking_company_method = ranking_company_resource.add_method(
+            "GET",
+            ranking_company_integration
         )
