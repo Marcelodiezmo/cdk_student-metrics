@@ -30,6 +30,8 @@ class StudentMetricsStack(core.Stack):
 
         lambda_role = _iam.Role.from_role_arn(self, 'student_role', 'arn:aws:iam::986361039434:role/customerSuccessBoxv1-LambdaExecutionRole-OBI9J5F7YON')
 
+        lambda_layer = _lambda.LayerVersion.from_layer_version_attributes(self,'student_layer',layer_version_arn='arn:aws:lambda:us-east-1:986361039434:layer:csb-sam-app-dependencies:13')
+
         security_group = _ec2.SecurityGroup.from_security_group_id(self, "student_suc_group", "sg-f9a5c9b2")
 
         # Lambda for mostPopular path
@@ -37,14 +39,15 @@ class StudentMetricsStack(core.Stack):
             self,
             'student_metrics_mostpopular',
             function_name='student_metrics_mostpopular',
-            # code=_lambda.Code.from_asset(path.join(this_dir,'lambdas')),
-            code=_lambda.Code.from_asset(path.join(this_dir,'lambdas/mostpopular.zip')),
+            code=_lambda.Code.from_asset(path.join(this_dir,'lambdas/most_popular')),
+            # code=_lambda.Code.from_asset(path.join(this_dir,'lambdas/mostpopular.zip')),
             handler='student_metrics_mostpopular.handler',
             runtime=_lambda.Runtime.PYTHON_3_8,
             description='Lambda to get information about the most popular course',
             vpc = dev_vpc,
             role = lambda_role,
-            security_groups=[security_group]
+            security_groups=[security_group],
+            layers=[lambda_layer]
             # environment={
             #     "ASTEROIDS_TABLE": ddb_asteroids_table.table_name,
             #     "S3_BUCKET": s3_bucket.bucket_name,
@@ -60,7 +63,7 @@ class StudentMetricsStack(core.Stack):
             self,
             'student_metrics_coursemonth',
             function_name='student_metrics_coursemonth',
-            code=_lambda.Code.from_asset(path.join(this_dir,'lambdas')),
+            code=_lambda.Code.from_asset(path.join(this_dir,'lambdas/course_month')),
             handler='student_metrics_coursemonth.handler',
             runtime=_lambda.Runtime.PYTHON_3_8,
             description='Lambda to get information about the Course of the Month'
@@ -71,7 +74,7 @@ class StudentMetricsStack(core.Stack):
             self,
             'student_metrics_rankingcompany',
             function_name='student_metrics_rankingcompany',
-            code=_lambda.Code.from_asset(path.join(this_dir,'lambdas')),
+            code=_lambda.Code.from_asset(path.join(this_dir,'lambdas/ranking_company')),
             handler='student_metrics_rankingcompany.handler',
             runtime=_lambda.Runtime.PYTHON_3_8,
             description='Lambda to get information about the students ranking into the company'
@@ -102,6 +105,7 @@ class StudentMetricsStack(core.Stack):
         metrics_resource = user_resource.add_resource("Metrics")
 
         # Paths resources
+        # book = books.add_resource("{book_id}") ---- event["queryStringParameters"]['queryparam1']
         most_popular_resource = metrics_resource.add_resource("mostPopular")
         course_month_resource = metrics_resource.add_resource("courseMonth")
         ranking_company_resource = metrics_resource.add_resource("rankingCompany")
@@ -122,27 +126,3 @@ class StudentMetricsStack(core.Stack):
             "GET",
             ranking_company_integration
         )
-
-        # RDS configuration
-
-        # RDS needs to be setup in a VPC
-        # vpc = _ec2.Vpc(self, 'vpc-students', max_azs=2)
-
-        #vpc_id = 'vpc-4f3dd135'
-        #vpc = _ec2.Vpc.from_lookup(self, "VPC", vpc_id=vpc_id)
-
-        # security group
-        #sg = _ec2.SecurityGroup(self,'scg',vpc = vpc)
-
-        # rds = _rds.DatabaseInstance.from_database_instance_attributes(
-        #     self,
-        #     id = 'db_instance',
-        #     instance_identifier = 'moodle-dev-rds-aurora',
-        #     instance_endpoint_address = 'moodle-dev-rds-aurora-instance-1.c9maghmfm0zw.us-east-1.rds.amazonaws.com',
-        #     port = 3036,
-        #     security_groups = sg,
-        #     # .DatabaseInstanceEngine..mysql(version = _rds.AuroraMysqlEngineVersion.VER_5_7_12)
-        #     engine = _rds.AuroraMysqlEngineVersion.VER_5_7_12
-        # )
-
-        # rds.grant_connect(lambda_mostpopular)

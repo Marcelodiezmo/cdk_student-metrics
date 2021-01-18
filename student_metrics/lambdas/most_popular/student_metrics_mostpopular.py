@@ -7,10 +7,11 @@ def handler(event, context):
     bucket = 'student-metrics'
     key = 'courseMonth.json'
 
-    rds_host = 'moodle-dev-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com'
-    user_name = 'moodle_dev_admin'
-    passwd = 'S2zhSJAw4ZNm'
+    rds_host = 'moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com'
+    db_user = 'moodle_dev_admin'
+    db_pass = 'S2zhSJAw4ZNm'
     db_name = 'bitnami_moodle'
+    db_port = 3036
 
     response = s3.get_object(Bucket=bucket, Key=key)
     content = response['Body']
@@ -24,11 +25,11 @@ def handler(event, context):
 
     # RDS connection
     try:
-        conn = pymysql.connect(rds_host, user=user_name, passwd=passwd, db=db_name, connect_timeout=5)
+        conn = pymysql.connect(host=rds_host, user=db_user, passwd=db_pass, db=db_name, port=db_port, connect_timeout=25)
         print("Conexion exitosa!!")
     except pymysql.MySQLError as e:
         print("ERROR: Unexpected error: Could not connect to MySQL instance.")
-        print("El error es " + e)
+        print("El error es " + str(e))
 
     # Construct the body of the response object
     responseBody = {
