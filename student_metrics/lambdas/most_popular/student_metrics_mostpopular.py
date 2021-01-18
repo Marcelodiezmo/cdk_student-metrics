@@ -20,9 +20,6 @@ def handler(event, context):
     course_id = jsonObject['course_id']
     finished_count = jsonObject['finished_count']
 
-    print("El id del curso es " + str(course_id))
-    print("el total de terminados es " + str(finished_count))
-
     # RDS connection
     try:
         conn = pymysql.connect(host=rds_host, user=db_user, passwd=db_pass, db=db_name, port=db_port, connect_timeout=25)
