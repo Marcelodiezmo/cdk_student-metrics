@@ -64,7 +64,11 @@ class StudentMetricsStack(core.Stack):
             code=_lambda.Code.from_asset(path.join(this_dir,'lambdas/course_month')),
             handler='student_metrics_coursemonth.handler',
             runtime=_lambda.Runtime.PYTHON_3_8,
-            description='Lambda to get information about the Course of the Month'
+            description='Lambda to get information about the Course of the Month',
+            vpc = dev_vpc,
+            role = lambda_role,
+            security_groups=[security_group],
+            layers=[lambda_layer]
         )
 
         # Lambda for Ranking Company
@@ -75,7 +79,11 @@ class StudentMetricsStack(core.Stack):
             code=_lambda.Code.from_asset(path.join(this_dir,'lambdas/ranking_company')),
             handler='student_metrics_rankingcompany.handler',
             runtime=_lambda.Runtime.PYTHON_3_8,
-            description='Lambda to get information about the students ranking into the company'
+            description='Lambda to get information about the students ranking into the company',
+            vpc = dev_vpc,
+            role = lambda_role,
+            security_groups=[security_group],
+            layers=[lambda_layer]            
         )
 
         # Grant the bucket to read access from lambdas
@@ -99,14 +107,14 @@ class StudentMetricsStack(core.Stack):
         ranking_company_integration = _agw.LambdaIntegration(lambda_rankingcompany)
 
         # Main Resources
-        user_resource = api.root.add_resource("Users")
-        metrics_resource = user_resource.add_resource("Metrics")
+        user_resource = api.root.add_resource("users")
+        metrics_resource = user_resource.add_resource("metrics")
 
         # Paths resources
         # book = books.add_resource("{book_id}") ---- event["queryStringParameters"]['queryparam1']
-        most_popular_resource = metrics_resource.add_resource("mostPopular")
-        course_month_resource = metrics_resource.add_resource("courseMonth")
-        ranking_company_resource = metrics_resource.add_resource("rankingCompany")
+        most_popular_resource = metrics_resource.add_resource("mostpopular")
+        course_month_resource = metrics_resource.add_resource("coursemonth")
+        ranking_company_resource = metrics_resource.add_resource("rankingcompany")
 
         # Paths Methods
         most_popular_resource.add_method(
