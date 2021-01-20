@@ -5,6 +5,7 @@ import pymysql
 
 s3 = boto3.client('s3')
 
+
 class Response:
     code = 200
     error_message = ''
@@ -16,6 +17,7 @@ class Response:
     iframe = ''
     contenido = ''
 
+
 class Course:
     courseId = ''
     courseFinish = 0
@@ -25,6 +27,7 @@ class Course:
     courseModules = ''
     courseIframe = ''
     courseType = ''
+
 
 def queryData(course):
     rds_host = 'moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com'
@@ -40,16 +43,20 @@ def queryData(course):
 
     # RDS connection
     try:
-        conn = pymysql.connect(host=rds_host, user=db_user, passwd=db_pass, db=db_name, port=db_port, connect_timeout=25)
+        conn = pymysql.connect(host=rds_host, user=db_user, passwd=db_pass, db=db_name, port=db_port,
+                               connect_timeout=25)
     except pymysql.Error as e:
         response['code'] = e.args[0]
         response['message'] = e.args[1]
 
     cursor = conn.cursor()
     queryName = "select fullname, summary from mdl_course where id = " + str(course.courseId)
-    queryDuration = "select course_duration_in_minutes from mdl_u_course_additional_info where id = " + str(course.courseId)
-    queryModules = "select count(*) as modules from mdl_course_modules where course = " + str(course.courseId) + " and deletioninprogress = 0 and visible = 1"
-    queryIframe = "select content from mdl_page where course = " + str(course.courseId) + " and name like '%Bienvenida%'"
+    queryDuration = "select course_duration_in_minutes from mdl_u_course_additional_info where id = " + str(
+        course.courseId)
+    queryModules = "select count(*) as modules from mdl_course_modules where course = " + str(
+        course.courseId) + " and deletioninprogress = 0 and visible = 1"
+    queryIframe = "select content from mdl_page where course = " + str(
+        course.courseId) + " and name like '%Bienvenida%'"
 
     try:
         cursor.execute(queryName)
@@ -76,12 +83,13 @@ def queryData(course):
 
     except:
         response['code'] = 404
-        response['message']="Error searching data"
+        response['message'] = "Error searching data"
 
     conn.close()
 
     response['course'] = course
     return response
+
 
 def handler(event, context):
     bucket = 'student-metrics'
@@ -94,17 +102,13 @@ def handler(event, context):
     try:
         responseS3 = s3.get_object(Bucket=bucket, Key=key)
         content = responseS3['Body']
-
         jsonObject = json.loads(content.read())
-        courseObject = jsonObject[0]
 
-        course_id = courseObject['course_id']
-        finished_count = courseObject['finished_count']
-        contenido = courseObject['Contenido']
+        for record in jsonObject:
+            course.courseId = record['course_id']
+            course.courseFinish = record['finished_count']
+            course.courseType = record['Contenido']
 
-        course.courseId = course_id
-        course.courseFinish = finished_count
-        course.courseType = contenido
     except botocore.exceptions.ClientError as error:
         response.error_message = str(error.response['Error']['Message'])
         response.code = str(error.response['ResponseMetadata']['HTTPStatusCode'])
