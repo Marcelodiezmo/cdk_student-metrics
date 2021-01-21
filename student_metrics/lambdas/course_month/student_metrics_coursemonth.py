@@ -6,21 +6,8 @@ import pymysql
 s3 = boto3.client('s3')
 
 
-class Response:
-    code = 200
-    error_message = ''
-    course_id = ''
-    name = ''
-    description = ''
-    duration = ''
-    modules = ''
-    iframe = ''
-    contenido = ''
-
-
 class Course:
     courseId = ''
-    courseFinish = 0
     courseName = ''
     courseDescription = ''
     courseDuration = ''
@@ -29,6 +16,26 @@ class Course:
     courseType = ''
 
 
+class Response:
+    code = 200
+    error_message = ''
+    course = Course()
+
+
+def exception_handler(response):
+    responseBody = {
+        "code": response.code,
+        "error_message": response.error_message,
+    }
+
+    return {
+        'statusCode': response.code,
+        'headers': {
+            'Content-Type': 'application/json'
+        },
+        'body': json.dumps(responseBody)
+    }
+
 def queryData(course):
     rds_host = 'moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com'
     db_user = 'moodle_dev_admin'
@@ -36,29 +43,19 @@ def queryData(course):
     db_name = 'bitnami_moodle'
     db_port = 3036
 
-    response = {}
-
-    response['code'] = 200
-    response['message'] = ''
+    response = Response()
 
     # RDS connection
     try:
         conn = pymysql.connect(host=rds_host, user=db_user, passwd=db_pass, db=db_name, port=db_port,
                                connect_timeout=25)
-    except pymysql.Error as e:
-        response['code'] = e.args[0]
-        response['message'] = e.args[1]
 
-    cursor = conn.cursor()
-    queryName = "select fullname, summary from mdl_course where id = " + str(course.courseId)
-    queryDuration = "select course_duration_in_minutes from mdl_u_course_additional_info where id = " + str(
-        course.courseId)
-    queryModules = "select count(*) as modules from mdl_course_modules where course = " + str(
-        course.courseId) + " and deletioninprogress = 0 and visible = 1"
-    queryIframe = "select content from mdl_page where course = " + str(
-        course.courseId) + " and name like '%Bienvenida%'"
+        cursor = conn.cursor()
+        queryName = "select fullname, summary from mdl_course where id = " + str(course.courseId)
+        queryDuration = "select course_duration_in_minutes from mdl_u_course_additional_info where id = " + str(course.courseId)
+        queryModules = "select count(*) as modules from mdl_course_modules where course = " + str(course.courseId) + " and deletioninprogress = 0 and visible = 1"
+        queryIframe = "select content from mdl_page where course = " + str(course.courseId) + " and name like '%Bienvenida%'"
 
-    try:
         cursor.execute(queryName)
         result = cursor.fetchall()
         course.courseName = str(result[0][0])
@@ -79,16 +76,15 @@ def queryData(course):
         else:
             course.courseIframe = ''
 
-        # print(course.__dict__)
 
-    except:
-        response['code'] = 404
-        response['message'] = "Error searching data"
+        conn.close()
+        response.course = course
+        return response
 
-    conn.close()
-
-    response['course'] = course
-    return response
+    except pymysql.Error as e:
+        response.code = e.args[0]
+        response.error_message = e.args[1]
+        return response
 
 
 def handler(event, context):
@@ -98,6 +94,7 @@ def handler(event, context):
     course = Course()
     response = Response()
     responseQuery = {}
+    responseBody = {}
 
     try:
         responseS3 = s3.get_object(Bucket=bucket, Key=key)
@@ -106,63 +103,41 @@ def handler(event, context):
 
         for record in jsonObject:
             course.courseId = record['course_id']
-            course.courseFinish = record['finished_count']
             course.courseType = record['Contenido']
 
     except botocore.exceptions.ClientError as error:
         response.error_message = str(error.response['Error']['Message'])
         response.code = str(error.response['ResponseMetadata']['HTTPStatusCode'])
+        return exception_handler(response)
 
-    if not response.error_message:
+    try:
         responseQuery = queryData(course)
-        response.code = responseQuery['code']
-        response.error_message = responseQuery['message']
+        response.code = responseQuery.code
+        response.error_message = responseQuery.error_message
 
-        if not response.error_message:
-            course = responseQuery['course']
-            response.course_id = course.courseId
-            response.name = course.courseName
-            response.description = course.courseDescription
-            response.duration = course.courseDuration
-            response.modules = course.courseModules
-            response.iframe = course.courseIframe
-            response.contenido = course.courseType
+        if response.code == 200:
+            course = responseQuery.course
+
+            responseBody = {
+                "course_id": course.courseId,
+                "name": course.courseName,
+                "description": course.courseDescription,
+                "duration": course.courseDuration,
+                "modules": course.courseModules,
+                "iframe": course.courseIframe,
+                "contenido": course.courseType
+            }
+
+            return {
+                'statusCode': response.code,
+                'headers': {
+                    'Content-Type': 'application/json'
+                },
+                'body': json.dumps(responseBody)
+            }
         else:
-            response.course_id = ''
-            response.name = ''
-            response.description = ''
-            response.duration = ''
-            response.modules = ''
-            response.iframe = ''
-            response.contenido = ''
-    else:
-        print('un error')
+            raise Exception
 
-    responseBody = {
-        "code": response.code,
-        "error_message": response.error_message,
-        "course_id": response.course_id,
-        "name": response.name,
-        "description": response.description,
-        "duration": response.duration,
-        "modules": response.modules,
-        "iframe": response.iframe,
-        "contenido": response.contenido
-    }
-
-    # respuesta = {
-    #     'statusCode': response.code,
-    #     'message': response.error_message,
-    #     'headers': {
-    #         'Content-Type': 'application/json'
-    #     },
-    #     'body': json.dumps(responseBody)
-    # }
-
-    return {
-        'statusCode': response.code,
-        'headers': {
-            'Content-Type': 'application/json'
-        },
-        'body': json.dumps(responseBody)
-    }
+    except Exception:
+        response.code = 404
+        return exception_handler(response)
