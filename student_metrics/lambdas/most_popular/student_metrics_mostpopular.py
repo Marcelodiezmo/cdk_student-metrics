@@ -1,45 +1,125 @@
 import json
+import botocore
 import boto3
 import pymysql
 
 s3 = boto3.client('s3')
-def handler(event, context):
-    bucket = 'student-metrics'
-    key = 'courseMonth.json'
 
-    rds_host = 'moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com'
-    db_user = 'moodle_dev_admin'
-    db_pass = 'S2zhSJAw4ZNm'
-    db_name = 'bitnami_moodle'
-    db_port = 3036
 
-    response = s3.get_object(Bucket=bucket, Key=key)
-    content = response['Body']
-    jsonObject = json.loads(content.read())
+class DataResponse:
+    courseId = ''
+    courseName = ''
+    courseFinish = ''
 
-    course_id = jsonObject['course_id']
-    finished_count = jsonObject['finished_count']
 
-    # RDS connection
-    try:
-        conn = pymysql.connect(host=rds_host, user=db_user, passwd=db_pass, db=db_name, port=db_port, connect_timeout=25)
-        print("Conexion exitosa!!")
-    except pymysql.MySQLError as e:
-        print("ERROR: Unexpected error: Could not connect to MySQL instance.")
-        print("El error es " + str(e))
+class Response:
+    code = 200
+    error_message = ''
+    data = DataResponse()
 
-    # Construct the body of the response object
+
+def exception_handler(response):
     responseBody = {
-        "course": course_id,
-        "finish": finished_count
+        "code": response.code,
+        "error_message": response.error_message,
     }
 
-    response = {
-        'statusCode': 200,
+    return {
+        'statusCode': response.code,
         'headers': {
             'Content-Type': 'application/json'
         },
         'body': json.dumps(responseBody)
     }
 
-    return response
+def queryData(data):
+    rds_host = 'moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com'
+    db_user = 'moodle_dev_admin'
+    db_pass = 'S2zhSJAw4ZNm'
+    db_name = 'bitnami_moodle'
+    db_port = 3036
+
+    response = Response()
+
+    # RDS connection
+    try:
+        conn = pymysql.connect(host=rds_host, user=db_user, passwd=db_pass, db=db_name, port=db_port,
+                               connect_timeout=25)
+
+        cursor = conn.cursor()
+        queryName = "select fullname from mdl_course where id = " + str(data.courseId)
+
+        cursor.execute(queryName)
+        result = cursor.fetchall()
+        data.courseName = str(result[0][0])
+
+        conn.close()
+        response.data = data
+        return response
+
+    except pymysql.Error as e:
+        response.code = e.args[0]
+        response.error_message = e.args[1]
+        return response
+
+
+def handler(event, context):
+    bucket = 'student-metrics'
+    key = 'most-popular-bits.json'
+
+    dataToSearch = DataResponse()
+    response = Response()
+    responseQuery = {}
+    responseBody = {}
+    jsonObject = []
+
+    try:
+        responseS3 = s3.get_object(Bucket=bucket, Key=key)
+        content = responseS3['Body']
+        jsonObject = json.loads(content.read())
+
+    except botocore.exceptions.ClientError as error:
+        response.error_message = str(error.response['Error']['Message'])
+        response.code = str(error.response['ResponseMetadata']['HTTPStatusCode'])
+        return exception_handler(response)
+
+    # Loop for search data in BD
+    dataBody = {}
+    dataToReturn = []
+    try:
+        for record in jsonObject:
+            dataToSearch.courseId = record['course_id']
+            dataToSearch.courseFinish = record['finished_count']
+
+            # search data
+            responseQuery = queryData(dataToSearch)
+            response.code = responseQuery.code
+            response.error_message = responseQuery.error_message
+
+            if response.code == 200:
+                responseBody = {
+                    "course_id": responseQuery.data.courseId,
+                    "name": responseQuery.data.courseName,
+                    "finished_count": responseQuery.data.courseFinish
+                }
+
+                dataToReturn.append(responseBody)
+
+            else:
+                raise Exception
+
+        dataBody = {
+            "data": dataToReturn
+        }
+
+        print(dataToReturn)
+        return {
+            'statusCode': response.code,
+            'headers': {
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps(dataBody)
+        }
+    except:
+        response.code = 404
+        return exception_handler(response)
