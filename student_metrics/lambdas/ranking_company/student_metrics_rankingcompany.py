@@ -51,7 +51,11 @@ def queryData(data):
 
         cursor.execute(queryName)
         result = cursor.fetchall()
-        data.studentName = str(result[0][0])
+
+        if result:
+            data.studentName = str(result[0][0])
+        else:
+            data.studentName = ''
 
         conn.close()
         response.data = data
