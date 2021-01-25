@@ -116,7 +116,7 @@ class StudentMetricsStack(core.Stack):
         # book = books.add_resource("{book_id}") ---- event["queryStringParameters"]['queryparam1']
         most_popular_resource = metrics_resource.add_resource("mostpopular")
         course_month_resource = metrics_resource.add_resource("coursemonth")
-        ranking_company_resource = metrics_resource.add_resource("rankingcompany")
+        ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
 
         # Paths Methods
         most_popular_resource.add_method(

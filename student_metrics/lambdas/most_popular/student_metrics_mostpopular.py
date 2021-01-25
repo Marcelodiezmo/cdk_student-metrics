@@ -112,7 +112,7 @@ def handler(event, context):
             "data": dataToReturn
         }
 
-        print(dataToReturn)
+        # print(dataToReturn)
         return {
             'statusCode': response.code,
             'headers': {
