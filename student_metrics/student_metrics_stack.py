@@ -119,11 +119,34 @@ class StudentMetricsStack(core.Stack):
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
 
         # Paths Methods
-        most_popular_resource.add_method(
+        most_popular_method = most_popular_resource.add_method(
             "GET",
             most_popular_integration
+            # api_key_required=True
             # auth
         )
+        # key = api.add_api_key("ApiKey", api_key_name="studentMetricsKey")
+        #
+        # plan = api.add_usage_plan(
+        #     "UsagePlan",
+        #     name="Easy",
+        #     api_key=key,
+        #     throttle={
+        #         "rate_limit": 10000,
+        #         "burst_limit": 5000
+        #     }
+        # )
+        #
+        # plan.add_api_stage(
+        #     stage=api.deployment_stage,
+        #     throttle=[{
+        #         "method": most_popular_method,
+        #         "throttle": {
+        #             "rate_limit": 10000,
+        #             "burst_limit": 5000
+        #         }
+        #     }]
+        # )
 
         course_month_resource.add_method(
             "GET",
