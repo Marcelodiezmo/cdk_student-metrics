@@ -19,6 +19,9 @@ class Response:
 
 
 def exception_handler(response):
+    if response.error_message == None or response.error_message == '':
+        response.error_message = 'General Error'
+
     responseBody = {
         "code": response.code,
         "error_message": response.error_message,
@@ -82,6 +85,9 @@ def handler(event, context):
         response.error_message = str(error.response['Error']['Message'])
         response.code = str(error.response['ResponseMetadata']['HTTPStatusCode'])
         return exception_handler(response)
+    except Exception:
+        response.code = 404
+        return exception_handler(response)
 
     # Loop for search data in BD
     dataBody = {}
@@ -120,6 +126,6 @@ def handler(event, context):
             },
             'body': json.dumps(dataBody)
         }
-    except:
+    except Exception:
         response.code = 404
         return exception_handler(response)

@@ -18,6 +18,9 @@ class Response:
 
 
 def exception_handler(response):
+    if response.error_message == None or response.error_message == '':
+        response.error_message = 'General Error'
+
     responseBody = {
         "code": response.code,
         "error_message": response.error_message,
@@ -87,6 +90,9 @@ def handler(event, context):
         response.error_message = str(error.response['Error']['Message'])
         response.code = str(error.response['ResponseMetadata']['HTTPStatusCode'])
         return exception_handler(response)
+    except Exception:
+        response.code = 404
+        return exception_handler(response)
 
     # Loop for search data in DB
     dataBody = {}
@@ -100,7 +106,7 @@ def handler(event, context):
             response.code = responseQuery.code
             response.error_message = responseQuery.error_message
 
-            if response.code == 200:
+            if response.code == 200 and responseQuery.data.studentName != '':
                 responseBody = {
                     "student_id": responseQuery.data.studentId,
                     "student_name": responseQuery.data.studentName
@@ -108,6 +114,7 @@ def handler(event, context):
 
                 dataToReturn.append(responseBody)
             else:
+                response.error_message = "Estudiante no encontrado"
                 raise Exception
 
         dataBody = {
