@@ -47,16 +47,17 @@ class StudentMetricsStack(core.Stack):
             vpc=dev_vpc,
             role=lambda_role,
             security_groups=[security_group],
-            layers=[lambda_layer]
-            # environment={
-            #     "ASTEROIDS_TABLE": ddb_asteroids_table.table_name,
-            #     "S3_BUCKET": s3_bucket.bucket_name,
-            #     "SCHEMA": self.node.try_get_context("SCHEMA"),
-            #     "REGION": self.node.try_get_context("REGION"),
-            #     "DB_SECRETS": self.node.try_get_context("DB_SECRETS_REF"),
-            #     "TOPIC_ARN": self.node.try_get_context("TOPIC_ARN")
-            # }
+            layers=[lambda_layer],
+            environment={
+                "rds_host": self.node.try_get_context("rds_host"),
+                "db_user": self.node.try_get_context("db_user"),
+                "db_pass": self.node.try_get_context("db_pass"),
+                "db_name": self.node.try_get_context("db_name"),
+                "db_port": self.node.try_get_context("db_port")
+            }
         )
+
+        # lambda_mostpopular.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
 
         # Lambda for courseMonth path
         lambda_coursemonth = _lambda.Function(
@@ -70,7 +71,14 @@ class StudentMetricsStack(core.Stack):
             vpc=dev_vpc,
             role=lambda_role,
             security_groups=[security_group],
-            layers=[lambda_layer]
+            layers=[lambda_layer],
+            environment={
+                "rds_host": self.node.try_get_context("rds_host"),
+                "db_user": self.node.try_get_context("db_user"),
+                "db_pass": self.node.try_get_context("db_pass"),
+                "db_name": self.node.try_get_context("db_name"),
+                "db_port": self.node.try_get_context("db_port")
+            }
         )
 
         # Lambda for Ranking Company
@@ -85,7 +93,14 @@ class StudentMetricsStack(core.Stack):
             vpc=dev_vpc,
             role=lambda_role,
             security_groups=[security_group],
-            layers=[lambda_layer]
+            layers=[lambda_layer],
+            environment={
+                "rds_host": self.node.try_get_context("rds_host"),
+                "db_user": self.node.try_get_context("db_user"),
+                "db_pass": self.node.try_get_context("db_pass"),
+                "db_name": self.node.try_get_context("db_name"),
+                "db_port": self.node.try_get_context("db_port")
+            }
         )
 
         # Grant the bucket to read access from lambdas
@@ -132,8 +147,8 @@ class StudentMetricsStack(core.Stack):
         #     name="Easy",
         #     api_key=key,
         #     throttle={
-        #         "rate_limit": 10000,
-        #         "burst_limit": 5000
+        #         "rate_limit": 100,
+        #         "burst_limit": 50
         #     }
         # )
         #
@@ -142,8 +157,8 @@ class StudentMetricsStack(core.Stack):
         #     throttle=[{
         #         "method": most_popular_method,
         #         "throttle": {
-        #             "rate_limit": 10000,
-        #             "burst_limit": 5000
+        #             "rate_limit": 100,
+        #             "burst_limit": 50
         #         }
         #     }]
         # )

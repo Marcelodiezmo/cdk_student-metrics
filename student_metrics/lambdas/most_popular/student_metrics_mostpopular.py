@@ -2,6 +2,7 @@ import json
 import botocore
 import boto3
 import pymysql
+import os
 
 s3 = boto3.client('s3')
 
@@ -36,11 +37,11 @@ def exception_handler(response):
     }
 
 def queryData(data):
-    rds_host = 'moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com'
-    db_user = 'moodle_dev_admin'
-    db_pass = 'S2zhSJAw4ZNm'
-    db_name = 'bitnami_moodle'
-    db_port = 3036
+    rds_host = os.environ['rds_host']
+    db_user = os.environ['db_user']
+    db_pass = os.environ['db_pass']
+    db_name = os.environ['db_name']
+    db_port = int(os.environ['db_port'])
 
     response = Response()
 
