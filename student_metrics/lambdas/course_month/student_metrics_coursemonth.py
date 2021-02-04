@@ -92,7 +92,7 @@ def queryData(course):
 
 
 def handler(event, context):
-    bucket = 'student-metrics'
+    bucket = os.environ['bucket_name']
     key = 'courseMonth.json'
 
     course = Course()

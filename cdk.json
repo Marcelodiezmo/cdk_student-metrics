@@ -7,10 +7,15 @@
     "@aws-cdk/aws-ecr-assets:dockerIgnoreSupport": true,
     "@aws-cdk/aws-secretsmanager:parseOwnedSecretName": true,
     "@aws-cdk/aws-kms:defaultKeyPolicies": true,
-    "rds_host": "moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
-    "db_user": "moodle_dev_admin",
-    "db_pass": "S2zhSJAw4ZNm",
-    "db_name": "bitnami_moodle",
-    "db_port": "3036"
+    "rds_host_test": "moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
+    "db_user_test": "moodle_dev_admin",
+    "db_pass_test": "S2zhSJAw4ZNm",
+    "db_name_test": "bitnami_moodle",
+    "db_port_test": "3036",
+    "rds_host_prod": "moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
+    "db_user_prod": "moodle_dev_admin",
+    "db_pass_prod": "S2zhSJAw4ZNm",
+    "db_name_prod": "bitnami_moodle",
+    "db_port_prod": "3036"
   }
 }

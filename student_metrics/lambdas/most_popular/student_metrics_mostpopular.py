@@ -68,7 +68,7 @@ def queryData(data):
 
 
 def handler(event, context):
-    bucket = 'student-metrics'
+    bucket = os.environ['bucket_name']
     key = 'most-popular-bits.json'
 
     dataToSearch = DataResponse()

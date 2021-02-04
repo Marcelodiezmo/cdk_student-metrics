@@ -72,7 +72,7 @@ def queryData(data):
 
 
 def handler(event, context):
-    bucket = 'student-metrics'
+    bucket = os.environ['bucket_name']
     key = 'ranking-company.json'
 
     companyId = int(event['pathParameters']['companyId'])
