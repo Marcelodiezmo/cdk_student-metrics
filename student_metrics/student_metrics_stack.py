@@ -197,7 +197,7 @@ class StudentMetricsStack(core.Stack):
         most_popular_resource = metrics_resource.add_resource("mostpopular")
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
-        powerbi_dashboard_resource = students_resource.add_resource("dashboard").add_resource("{companyId}")
+        powerbi_dashboard_resource = students_resource.add_resource("dashboard")
 
         # Paths Methods
         most_popular_method = most_popular_resource.add_method(
