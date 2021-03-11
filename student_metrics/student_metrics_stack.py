@@ -4,6 +4,7 @@ from aws_cdk import (
     aws_lambda as _lambda,
     aws_apigateway as _agw,
     aws_s3 as _s3,
+    aws_s3_deployment as _deploy,
     aws_ec2 as _ec2,
     aws_rds as _rds,
     aws_iam as _iam,
@@ -61,6 +62,27 @@ class StudentMetricsStack(core.Stack):
 
         # Create the S3 bucket for JSON metrics files
         student_bucket = _s3.Bucket(self, bucket_name, bucket_name=bucket_name)
+
+        _deploy.BucketDeployment(
+            self, "DeployFolderLastLogin", 
+            sources=[_deploy.Source.asset(path.join(this_dir,"./files"))],
+            destination_bucket=student_bucket,
+            destination_key_prefix="students/last_login"
+        )
+
+        _deploy.BucketDeployment(
+            self, "DeployFolderProgressTrainingPlan", 
+            sources=[_deploy.Source.asset(path.join(this_dir,"./files"))],
+            destination_bucket=student_bucket,
+            destination_key_prefix="students/progress_training_plan"
+        )
+
+        _deploy.BucketDeployment(
+            self, "DeployFolderFinishedCourses", 
+            sources=[_deploy.Source.asset(path.join(this_dir,"./files"))],
+            destination_bucket=student_bucket,
+            destination_key_prefix="students/finished_courses"
+        )
 
         dev_vpc = _ec2.Vpc.from_vpc_attributes(self, 'dev_vpc',
                                                vpc_id="vpc-4f3dd135",
