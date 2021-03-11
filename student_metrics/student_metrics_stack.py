@@ -157,7 +157,8 @@ class StudentMetricsStack(core.Stack):
             description='Lambda to get URL that contains the analytics dashboard',
             vpc=dev_vpc,
             role=lambda_role,
-            security_groups=[security_group]
+            security_groups=[security_group],
+            layers=[lambda_layer]
         )
 
         lambda_powerbi_dashboard.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))

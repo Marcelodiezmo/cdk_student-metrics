@@ -101,10 +101,10 @@ class PowerBIClientService:
 
     def __init__(self):
         print("Constructor")
-        self.header = self.getHeader(self)
+        self.header = self.get_header(self)
 
     @staticmethod
-    def getHeader(self):
+    def get_header(self):
         print("Get Header for client ")
         authority = AUTHORITY.replace('organizations', TENANT_ID)
         clientapp = msal.ConfidentialClientApplication(CLIENT_ID, client_credential=CLIENT_SECRET, authority=authority)
@@ -115,7 +115,7 @@ class PowerBIClientService:
         print(header)
         return header
 
-    def getURLDashboard(self):
+    def get_url_dashboard(self):
         print("Get URL Dashboard")
 
         report_url = f"https://api.powerbi.com/v1.0/myorg/groups/{WORKSPACE_ID}/reports/{REPORT_ID}"
@@ -135,7 +135,7 @@ class PowerBIClientService:
         api_response = requests.post(embed_token_api, data=json.dumps(request_body.__dict__), headers=self.header)
         print(api_response.status_code)
 
-        if api_response.status_code == "200":
+        if api_response.status_code == 200:
             api_response = json.loads(api_response.text)
             embed_token = EmbedToken(api_response['tokenId'], api_response['token'], api_response['expiration'])
             embed_config = EmbedConfig(embed_token.tokenId, embed_token.token, embed_token.tokenExpiry, [report.__dict__])
