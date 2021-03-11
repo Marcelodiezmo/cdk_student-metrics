@@ -33,6 +33,7 @@ class StudentMetricsStack(core.Stack):
         lambda_mostpopular_name = ''
         lambda_coursemonth_name = ''
         lambda_rankingcompany_name = ''
+        lambda_powerbi_dashboard_name = ''
         bucket_name = ''
         api_name = ''
 
@@ -45,6 +46,7 @@ class StudentMetricsStack(core.Stack):
             lambda_mostpopular_name = 'student_metrics_mostpopular'
             lambda_coursemonth_name = 'student_metrics_coursemonth'
             lambda_rankingcompany_name = 'student_metrics_rankingcompany'
+            lambda_powerbi_dashboard_name = "powerbi_dashboard_client"
             bucket_name = 'student-metrics'
             api_name = 'StudentMetrics'
         else:
@@ -56,6 +58,7 @@ class StudentMetricsStack(core.Stack):
             lambda_mostpopular_name = 'student_metrics_mostpopular_test'
             lambda_coursemonth_name = 'student_metrics_coursemonth_test'
             lambda_rankingcompany_name = 'student_metrics_rankingcompany_test'
+            lambda_powerbi_dashboard_name = "powerbi_dashboard_client_test"
             bucket_name = 'student-metrics-test'
             api_name = 'StudentMetrics_test'
 
@@ -120,6 +123,7 @@ class StudentMetricsStack(core.Stack):
         lambda_coursemonth.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
 
         # Lambda for Ranking Company
+
         lambda_rankingcompany = _lambda.Function(
             self,
             lambda_rankingcompany_name,
@@ -141,8 +145,22 @@ class StudentMetricsStack(core.Stack):
                 "bucket_name": bucket_name
             }
         )
-
         lambda_rankingcompany.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
+
+        lambda_powerbi_dashboard = _lambda.Function(
+            self,
+            lambda_powerbi_dashboard_name,
+            function_name=lambda_powerbi_dashboard_name,
+            code=_lambda.Code.from_asset(path.join(this_dir, 'lambdas/dashboard_powerbi')),
+            handler='app.handler',
+            runtime=_lambda.Runtime.PYTHON_3_8,
+            description='Lambda to get URL that contains the analytics dashboard',
+            vpc=dev_vpc,
+            role=lambda_role,
+            security_groups=[security_group]
+        )
+
+        lambda_powerbi_dashboard.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
 
         # Grant the bucket to read access from lambdas
         student_bucket.grant_read(lambda_mostpopular)
@@ -165,14 +183,20 @@ class StudentMetricsStack(core.Stack):
         # Integrate API and rankingcompany lambda
         ranking_company_integration = _agw.LambdaIntegration(lambda_rankingcompany)
 
+        # Integrate API and Power BI Dashboard lambda
+        powerbi_dashboard_integration = _agw.LambdaIntegration(lambda_powerbi_dashboard)
+
         # Main Resources
         user_resource = api.root.add_resource("users")
         metrics_resource = user_resource.add_resource("metrics")
+        root_resource = api.root.add_resource("v1")
+        students_resource = root_resource.add_resource("students")
 
         # Paths resources
         most_popular_resource = metrics_resource.add_resource("mostpopular")
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
+        powerbi_dashboard_resource = students_resource.add_resource("dashboard").add_resource("{companyId}")
 
         # Paths Methods
         most_popular_method = most_popular_resource.add_method(
@@ -211,6 +235,11 @@ class StudentMetricsStack(core.Stack):
         ranking_company_resource.add_method(
             "GET",
             ranking_company_integration
+        )
+
+        powerbi_dashboard_resource.add_method(
+            "GET",
+            powerbi_dashboard_integration
         )
 
         # Deployment
