@@ -33,6 +33,7 @@ class StudentMetricsStack(core.Stack):
         lambda_mostpopular_name = ''
         lambda_coursemonth_name = ''
         lambda_rankingcompany_name = ''
+        lambda_finished_courses_name = ''
         bucket_name = ''
         api_name = ''
 
@@ -45,6 +46,7 @@ class StudentMetricsStack(core.Stack):
             lambda_mostpopular_name = 'student_metrics_mostpopular'
             lambda_coursemonth_name = 'student_metrics_coursemonth'
             lambda_rankingcompany_name = 'student_metrics_rankingcompany'
+            lambda_finished_courses_name = 'lambda_finished_courses'
             bucket_name = 'student-metrics'
             api_name = 'StudentMetrics'
         else:
@@ -56,6 +58,7 @@ class StudentMetricsStack(core.Stack):
             lambda_mostpopular_name = 'student_metrics_mostpopular_test'
             lambda_coursemonth_name = 'student_metrics_coursemonth_test'
             lambda_rankingcompany_name = 'student_metrics_rankingcompany_test'
+            lambda_finished_courses_name = 'lambda_finished_courses'
             bucket_name = 'student-metrics-test'
             api_name = 'StudentMetrics_test'
 
@@ -144,10 +147,61 @@ class StudentMetricsStack(core.Stack):
 
         lambda_rankingcompany.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
 
+         # Lambda for Ranking Company
+        lambda_rankingcompany = _lambda.Function(
+            self,
+            lambda_rankingcompany_name,
+            function_name=lambda_rankingcompany_name,
+            code=_lambda.Code.from_asset(path.join(this_dir, 'lambdas/ranking_company')),
+            handler='student_metrics_rankingcompany.handler',
+            runtime=_lambda.Runtime.PYTHON_3_8,
+            description='Lambda to get information about the students ranking into the company',
+            vpc=dev_vpc,
+            role=lambda_role,
+            security_groups=[security_group],
+            layers=[lambda_layer],
+            environment={
+                "rds_host": rds_host,
+                "db_user": db_user,
+                "db_pass": db_pass,
+                "db_name": db_name,
+                "db_port": db_port,
+                "bucket_name": bucket_name
+            }
+        )
+
+        lambda_rankingcompany.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
+
+        # Lambda for Finished Courses
+        lambda_finished_courses = _lambda.Function(
+            self,
+            lambda_finished_courses_name,
+            function_name=lambda_finished_courses_name,
+            code=_lambda.Code.from_asset(path.join(this_dir, 'lambdas/finished_courses')),
+            handler='app.handler',
+            runtime=_lambda.Runtime.PYTHON_3_8,
+            description='Lambda used to get information about the free and mandatory count completed courses ',
+            vpc=dev_vpc,
+            role=lambda_role,
+            security_groups=[security_group],
+            layers=[lambda_layer],
+            environment={
+                "rds_host": rds_host,
+                "db_user": db_user,
+                "db_pass": db_pass,
+                "db_name": db_name,
+                "db_port": db_port,
+                "bucket_name": bucket_name
+            }
+        )
+
+        lambda_finished_courses.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
+
         # Grant the bucket to read access from lambdas
         student_bucket.grant_read(lambda_mostpopular)
         student_bucket.grant_read(lambda_coursemonth)
         student_bucket.grant_read(lambda_rankingcompany)
+        student_bucket.grant_read(lambda_finished_courses)
 
         api = _agw.RestApi(
             self,
@@ -165,6 +219,9 @@ class StudentMetricsStack(core.Stack):
         # Integrate API and rankingcompany lambda
         ranking_company_integration = _agw.LambdaIntegration(lambda_rankingcompany)
 
+        # Integrate API and finished courses lambda
+        finished_courses_integration = _agw.LambdaIntegration(lambda_finished_courses)
+
         # Main Resources
         user_resource = api.root.add_resource("users")
         metrics_resource = user_resource.add_resource("metrics")
@@ -173,6 +230,7 @@ class StudentMetricsStack(core.Stack):
         most_popular_resource = metrics_resource.add_resource("mostpopular")
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
+        finished_courses_resource = metrics_resource.add_resource("finishedcourses")
 
         # Paths Methods
         most_popular_method = most_popular_resource.add_method(
@@ -211,6 +269,11 @@ class StudentMetricsStack(core.Stack):
         ranking_company_resource.add_method(
             "GET",
             ranking_company_integration
+        )
+
+        finished_courses_resource.add_method(
+            "GET",
+            finished_courses_integration
         )
 
         # Deployment
