@@ -22,7 +22,7 @@ class StudentMetricsStack(core.Stack):
         lambda_role = _iam.Role.from_role_arn(self, 'student_role',
                                               'arn:aws:iam::986361039434:role/customerSuccessBoxv1-LambdaExecutionRole-OBI9J5F7YON')
         lambda_layer = _lambda.LayerVersion.from_layer_version_attributes(self, 'student_layer',
-                                                                          layer_version_arn='arn:aws:lambda:us-east-1:986361039434:layer:csb-sam-app-dependencies:13')
+                                                                          layer_version_arn='arn:aws:lambda:us-east-1:986361039434:layer:csb-sam-app-dependencies:16')
         security_group = _ec2.SecurityGroup.from_security_group_id(self, "student_suc_group", "sg-f9a5c9b2")
 
         rds_host = ''
