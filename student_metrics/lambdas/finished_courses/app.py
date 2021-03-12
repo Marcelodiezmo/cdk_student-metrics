@@ -57,7 +57,7 @@ def handler(event, context):
             'headers': {
                 'Content-Type': 'application/json'
             },
-            'body': response.data
+            'body': json.dumps(response.data, default=obj_dict)
         }
 
         return response
@@ -76,6 +76,10 @@ def get_data_from_json_object(iterableList, studentIdParam):
     map_iterator = map(map_finished_courses, iterableList)
     return list(map_iterator)
 
+
+def obj_dict(obj):
+    return obj.__dict__
+    
 def find_student_by_id(record, studentIdParam):
     return str(record[constants.USER_ID]) == str(studentIdParam)
 
@@ -107,7 +111,7 @@ def test_get_data_from_json_object():
     print(len(result))
 
 def test_handler():
-    param_id = 11969
+    param_id = ''
     event = {'pathParameters':{constants.STUDENT_ID_PARAM : param_id}}
     os.environ['bucket_name'] = 'student-metrics'
     result = handler(event, None)

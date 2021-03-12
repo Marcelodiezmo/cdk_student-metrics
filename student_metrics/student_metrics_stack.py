@@ -32,8 +32,11 @@ class StudentMetricsStack(core.Stack):
         most_popular_lambda = lambda_stack.lambdaStack(self, 'most_popular', lambda_name='most_popular', stage=stage)
         student_bucket.student_bucket.grant_read(most_popular_lambda.student_lambda)
 
-        ranking_company_lambda = lambda_stack.lambdaStack(self, 'ranking_company-id', lambda_name='ranking_company', stage=stage)
+        ranking_company_lambda = lambda_stack.lambdaStack(self, 'ranking_company', lambda_name='ranking_company', stage=stage)
         student_bucket.student_bucket.grant_read(ranking_company_lambda.student_lambda)
+
+        finished_courses_lambda = lambda_stack.lambdaStack(self, 'finished_courses', lambda_name='finished_courses', stage=stage)
+        student_bucket.student_bucket.grant_read(finished_courses_lambda.student_lambda)
         
         # Create the Api
         api_name = 'StudentMetrics'
@@ -55,6 +58,7 @@ class StudentMetricsStack(core.Stack):
         most_popular_resource = metrics_resource.add_resource("mostpopular")
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
+        finished_courses_resource = metrics_resource.add_resource("finishedcourses").add_resource("{studentId}")
 
         # Integrate API and courseMonth lambda
         course_month_integration = _agw.LambdaIntegration(course_month_lambda.student_lambda)
@@ -65,6 +69,9 @@ class StudentMetricsStack(core.Stack):
         # Integrate API and rankingcompany lambda
         ranking_company_integration = _agw.LambdaIntegration(ranking_company_lambda.student_lambda)
 
+        # Integrate API and finishedcourses lambda
+        finished_courses_integration = _agw.LambdaIntegration(finished_courses_lambda.student_lambda)
+
         course_month_resource.add_method(
             "GET",
             course_month_integration
@@ -73,6 +80,11 @@ class StudentMetricsStack(core.Stack):
         ranking_company_resource.add_method(
             "GET",
             ranking_company_integration
+        )
+
+        finished_courses_resource.add_method(
+            "GET",
+            finished_courses_integration
         )
 
         most_popular_method = most_popular_resource.add_method(
