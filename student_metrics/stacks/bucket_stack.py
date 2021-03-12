@@ -13,7 +13,7 @@ class bucketStack(core.Construct):
         super().__init__(scope, construct_id, **kwargs)
 
         this_dir = path.dirname(__file__)
-        student_bucket = _s3.Bucket(self, 'student_metrics-id', bucket_name=bucket_name)
+        student_bucket = _s3.Bucket(self, 'student_metrics_id_1', bucket_name=bucket_name)
 
         _deploy.BucketDeployment(
             self, "DeployFolderLastLogin", 

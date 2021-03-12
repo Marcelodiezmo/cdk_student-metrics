@@ -15,6 +15,7 @@ class lambdaStack(core.Construct):
         super().__init__(scope, construct_id, **kwargs)
 
         this_dir = path.dirname(__file__)
+        code_route = _lambda.Code.from_asset(path.join(this_dir, '../lambdas/' + lambda_name))
 
         shared_values = self.node.try_get_context('shared_values')
         dev_values = shared_values['dev_values']
@@ -35,6 +36,7 @@ class lambdaStack(core.Construct):
             vpc_id = prod_values["vcp_id"]
             bucket_name = prod_values["bucket_name"]
         elif stage == 'test':
+            lambda_name = lambda_name + '_test'
             rds_host = test_values['rds_host']
             db_user = test_values['db_user']
             db_pass = test_values['db_pass']
@@ -73,9 +75,9 @@ class lambdaStack(core.Construct):
 
         student_lambda = _lambda.Function(
             self,
-            'student_metrics_' + lambda_name + '_' + stage,
-            function_name='student_metrics_' + lambda_name + '_' + stage,
-            code=_lambda.Code.from_asset(path.join(this_dir, '../lambdas/' + lambda_name)),
+            'student_metrics_' + lambda_name,
+            function_name='student_metrics_' + lambda_name,
+            code=code_route,
             # code=_lambda.Code.from_asset(path.join(this_dir,'lambdas/mostpopular.zip')),
             handler='app.handler',
             runtime=_lambda.Runtime.PYTHON_3_8,
