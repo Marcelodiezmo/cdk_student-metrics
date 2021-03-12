@@ -28,40 +28,7 @@ def exception_handler(response):
     }
 
 
-def queryData(studentId):
-    rds_host = os.environ['rds_host']
-    db_user = os.environ['db_user']
-    db_pass = os.environ['db_pass']
-    db_name = os.environ['db_name']
-    db_port = int(os.environ['db_port'])
-
-    response = Response()
-
-    # RDS connection
-    try:
-        conn = pymysql.connect(host=rds_host, user=db_user, passwd=db_pass, db=db_name, port=db_port,
-                               connect_timeout=25)
-
-        cursor = conn.cursor()
-        queryName = constants.STUDENT_QUERY_BY_USERID.format(student_id = str(studentId))
-
-        cursor.execute(queryName)
-        result = cursor.fetchall()
-        conn.close()
-
-        if result:
-            queryData = str(result[0][0])
-        else:
-            queryData = ''
-        
-        return queryData
-
-    except pymysql.Error as e:
-        response.code = e.args[0]
-        response.error_message = e.args[1]
-        return response
-
-def getParamId(paramId):
+def getParamId(event, paramId):
     paramValue = None
     try:
         paramValue = str(event['pathParameters'][paramId])
@@ -73,7 +40,9 @@ def getParamId(paramId):
 
 def handler(event, context):
     bucket = os.environ['bucket_name']
-    key = 'finished_courses.json'
+    path = 'students/finished_courses/'
+    key = path + 'finished_courses.json'
+    studen_param_id = getParamId(event, constants.STUDENT_ID_PARAM)
 
     response = Response()
 
@@ -81,20 +50,17 @@ def handler(event, context):
         responseS3 = s3.get_object(Bucket=bucket, Key=key)
         content = responseS3['Body']
         jsonObject = json.loads(content.read())
-        response.data = getDataFromJsonObject(jsonObject)
+        response.data = get_data_from_json_object(jsonObject, studen_param_id)
 
-        if response.code == 200:
-            course = responseQuery.course
+        response =  {
+            'statusCode': response.code,
+            'headers': {
+                'Content-Type': 'application/json'
+            },
+            'body': response.data
+        }
 
-            return {
-                'statusCode': response.code,
-                'headers': {
-                    'Content-Type': 'application/json'
-                },
-                'body': json.dumps(response.data)
-            }
-        else:
-            raise Exception
+        return response
 
     except botocore.exceptions.ClientError as error:
         response.error_message = str(error.response['Error']['Message'])
@@ -104,7 +70,7 @@ def handler(event, context):
         response.code = 404
         return exception_handler(response)
 
-def getDataFromJsonObject(iterableList, studentIdParam):
+def get_data_from_json_object(iterableList, studentIdParam):
     if(studentIdParam != ''):
         iterableList = filter(lambda record : find_student_by_id(record, studentIdParam), iterableList)
     map_iterator = map(map_finished_courses, iterableList)
@@ -128,16 +94,24 @@ def map_finished_courses(record):
 
 ##############################################
 # TEST AREA
-def testGetDataFromJsonObject():
+def test_get_data_from_json_object():
     # path = "/lambdas/finished_courses/test/"
     filepath = 'C:/Desarrollo/Proyectos/Ubits/student-metrics/student_metrics/lambdas/finished_courses/test/finished_courses.json'
     content = open(filepath + '', "r")
-    jsonObject = json.loads(content.read())
-    result = getDataFromJsonObject(jsonObject, 11969)
-    # result = getDataFromJsonObject(jsonObject, '')
+    json_object = json.loads(content.read())
+    # result = get_data_from_json_object(json_object, 11969)
+    handler()
+    # result = get_data_from_json_object(json_object, '')
     print ('###################################')
     print_iterator(result)
     print(len(result))
+
+def test_handler():
+    param_id = 11969
+    event = {'pathParameters':{constants.STUDENT_ID_PARAM : param_id}}
+    os.environ['bucket_name'] = 'student-metrics'
+    result = handler(event, None)
+    print (result)
 
     
 def print_iterator(it):
@@ -146,4 +120,6 @@ def print_iterator(it):
     print('')  # for new line
 
 if __name__ == '__main__':
-    testGetDataFromJsonObject()
+    # test_get_data_from_json_object()
+    test_handler()
+    

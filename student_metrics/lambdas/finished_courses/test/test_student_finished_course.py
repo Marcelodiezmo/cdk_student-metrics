@@ -1,14 +1,14 @@
 import json
 import os
 
-from ..app import getDataFromJsonObject
+from ..app import get_data_from_json_object
 
 def testGetDataFromJsonObject():
     # path = "/lambdas/finished_courses/test/"
     filepath = 'C:/Desarrollo/Proyectos/Ubits/student-metrics/student_metrics/lambdas/finished_courses/test/finished_courses.json'
     content = open(filepath + '', "r")
     jsonObject = json.loads(content.read())
-    result = getDataFromJsonObject(jsonObject, 11969)
+    result = get_data_from_json_object(jsonObject, 11969)
     # result = getDataFromJsonObject(jsonObject, '')
     print ('###################################')
     print_iterator(result)

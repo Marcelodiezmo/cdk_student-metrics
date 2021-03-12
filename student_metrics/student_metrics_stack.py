@@ -58,7 +58,7 @@ class StudentMetricsStack(core.Stack):
             lambda_mostpopular_name = 'student_metrics_mostpopular_test'
             lambda_coursemonth_name = 'student_metrics_coursemonth_test'
             lambda_rankingcompany_name = 'student_metrics_rankingcompany_test'
-            lambda_finished_courses_name = 'lambda_finished_courses'
+            lambda_finished_courses_name = 'lambda_finished_courses_test'
             bucket_name = 'student-metrics-test'
             api_name = 'StudentMetrics_test'
 
@@ -230,7 +230,7 @@ class StudentMetricsStack(core.Stack):
         most_popular_resource = metrics_resource.add_resource("mostpopular")
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
-        finished_courses_resource = metrics_resource.add_resource("finishedcourses")
+        finished_courses_resource = metrics_resource.add_resource("finished_courses").add_resource("{studentId}")
 
         # Paths Methods
         most_popular_method = most_popular_resource.add_method(
