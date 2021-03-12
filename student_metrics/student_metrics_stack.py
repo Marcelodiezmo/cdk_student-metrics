@@ -22,7 +22,7 @@ class StudentMetricsStack(core.Stack):
         lambda_role = _iam.Role.from_role_arn(self, 'student_role',
                                               'arn:aws:iam::986361039434:role/customerSuccessBoxv1-LambdaExecutionRole-OBI9J5F7YON')
         lambda_layer = _lambda.LayerVersion.from_layer_version_attributes(self, 'student_layer',
-                                                                          layer_version_arn='arn:aws:lambda:us-east-1:986361039434:layer:csb-sam-app-dependencies:16')
+                                                                          layer_version_arn='arn:aws:lambda:us-east-1:986361039434:layer:csb-sam-app-dependencies:18')
         security_group = _ec2.SecurityGroup.from_security_group_id(self, "student_suc_group", "sg-f9a5c9b2")
 
         rds_host = ''
@@ -155,10 +155,9 @@ class StudentMetricsStack(core.Stack):
             handler='app.handler',
             runtime=_lambda.Runtime.PYTHON_3_8,
             description='Lambda to get URL that contains the analytics dashboard',
-            vpc=dev_vpc,
             role=lambda_role,
-            security_groups=[security_group],
-            layers=[lambda_layer]
+            layers=[lambda_layer],
+            timeout=core.Duration.seconds(5)
         )
 
         lambda_powerbi_dashboard.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))

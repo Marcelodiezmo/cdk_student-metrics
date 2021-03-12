@@ -1,5 +1,6 @@
 from json import dumps
 
+
 class ResponseError:
     def __init__(self, code, error_message):
         self.code = code
@@ -7,6 +8,7 @@ class ResponseError:
 
     code = ''
     error_message = ''
+
 
 class Response(object):
 
@@ -18,7 +20,7 @@ class Response(object):
         return {
             "statusCode": self.statusCode,
             "headers": self.headers,
-            "body": dumps(self.body),
+            "body": dumps(self.body.__dict__),
             "isBase64Encoded": False
         }
 

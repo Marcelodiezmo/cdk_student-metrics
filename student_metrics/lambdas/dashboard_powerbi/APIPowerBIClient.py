@@ -140,9 +140,9 @@ class PowerBIClientService:
             embed_token = EmbedToken(api_response['tokenId'], api_response['token'], api_response['expiration'])
             embed_config = EmbedConfig(embed_token.tokenId, embed_token.token, embed_token.tokenExpiry, [report.__dict__])
 
-            response = embed_config.__dict__
-            print(response['reportConfig'][0]['reportName'])
-            return response
+            print(embed_config)
+            #['reportConfig'][0]['reportName']
+            return embed_config
         else:
             print("ERROR: ", "Error consuming the PowerBI API")
             raise Exception("Error consuming the PowerBI API")
