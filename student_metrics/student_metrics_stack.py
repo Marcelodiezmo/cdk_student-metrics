@@ -58,7 +58,8 @@ class StudentMetricsStack(core.Stack):
         most_popular_resource = metrics_resource.add_resource("mostpopular")
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
-        finished_courses_resource = metrics_resource.add_resource("finishedcourses").add_resource("{studentId}")
+        finished_courses_resource = metrics_resource.add_resource("finishedcourses")
+        finished_courses_by_student_id_resource = finished_courses_resource.add_resource("{studentId}")
 
         # Integrate API and courseMonth lambda
         course_month_integration = _agw.LambdaIntegration(course_month_lambda.student_lambda)
@@ -83,6 +84,11 @@ class StudentMetricsStack(core.Stack):
         )
 
         finished_courses_resource.add_method(
+            "GET",
+            finished_courses_integration
+        )
+
+        finished_courses_by_student_id_resource.add_method(
             "GET",
             finished_courses_integration
         )

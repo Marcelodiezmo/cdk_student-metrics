@@ -28,7 +28,7 @@ def exception_handler(response):
     }
 
 
-def getParamId(event, paramId):
+def get_param_id(event, paramId):
     paramValue = None
     try:
         paramValue = str(event['pathParameters'][paramId])
@@ -39,10 +39,10 @@ def getParamId(event, paramId):
     
 
 def handler(event, context):
+    studen_param_id = get_param_id(event, constants.STUDENT_ID_PARAM)
     bucket = os.environ['bucket_name']
     path = 'students/finished_courses/'
     key = path + 'finished_courses.json'
-    studen_param_id = getParamId(event, constants.STUDENT_ID_PARAM)
 
     response = Response()
 
@@ -92,38 +92,3 @@ def map_finished_courses(record):
         record[constants.COMPANY_ID]
     )
     return student
-
-
-
-
-##############################################
-# TEST AREA
-def test_get_data_from_json_object():
-    # path = "/lambdas/finished_courses/test/"
-    filepath = 'C:/Desarrollo/Proyectos/Ubits/student-metrics/student_metrics/lambdas/finished_courses/test/finished_courses.json'
-    content = open(filepath + '', "r")
-    json_object = json.loads(content.read())
-    # result = get_data_from_json_object(json_object, 11969)
-    handler()
-    # result = get_data_from_json_object(json_object, '')
-    print ('###################################')
-    print_iterator(result)
-    print(len(result))
-
-def test_handler():
-    param_id = ''
-    event = {'pathParameters':{constants.STUDENT_ID_PARAM : param_id}}
-    os.environ['bucket_name'] = 'student-metrics'
-    result = handler(event, None)
-    print (result)
-
-    
-def print_iterator(it):
-    for x in it:
-        print(x, end=' ')
-    print('')  # for new line
-
-if __name__ == '__main__':
-    # test_get_data_from_json_object()
-    test_handler()
-    
