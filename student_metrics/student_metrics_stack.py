@@ -1,13 +1,5 @@
-from aws_cdk import core
-from os import path
 from aws_cdk import (
-    aws_lambda as _lambda,
     aws_apigateway as _agw,
-    aws_s3 as _s3,
-    aws_s3_deployment as _deploy,
-    aws_ec2 as _ec2,
-    aws_rds as _rds,
-    aws_iam as _iam,
     core
 )
 
@@ -37,17 +29,27 @@ class StudentMetricsStack(core.Stack):
 
         finished_courses_lambda = lambda_stack.lambdaStack(self, 'finished_courses', lambda_name='finished_courses', stage=stage)
         student_bucket.student_bucket.grant_read(finished_courses_lambda.student_lambda)
+
+        company_lambda = lambda_stack.lambdaStack(self, 'company', lambda_name='company', stage=stage)
+
         
         # Create the Api
         api_name = 'StudentMetrics'
         if stage == 'test':
             api_name = 'StudentMetrics_test'
 
+        # api = _agw.RestApi(
+        #     self,
+        #     api_name,
+        #     description='API for users metrics',
+        #     deploy= False
+        # )
+
         api = _agw.RestApi(
             self,
             api_name,
             description='API for users metrics',
-            deploy= False
+            deploy_options=_agw.StageOptions(stage_name=stage)
         )
 
         # Main Resources
@@ -59,6 +61,7 @@ class StudentMetricsStack(core.Stack):
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
         finished_courses_resource = metrics_resource.add_resource("finishedcourses").add_resource("{studentId}")
+        company_resources = metrics_resource.add_resource("company").add_resource("{companyId}")
 
         # Integrate API and courseMonth lambda
         course_month_integration = _agw.LambdaIntegration(course_month_lambda.student_lambda)
@@ -71,6 +74,9 @@ class StudentMetricsStack(core.Stack):
 
         # Integrate API and finishedcourses lambda
         finished_courses_integration = _agw.LambdaIntegration(finished_courses_lambda.student_lambda)
+
+        # Integrate companyinfo lambda
+        company_integration = _agw.LambdaIntegration(company_lambda.student_lambda)
 
         course_month_resource.add_method(
             "GET",
@@ -85,6 +91,11 @@ class StudentMetricsStack(core.Stack):
         finished_courses_resource.add_method(
             "GET",
             finished_courses_integration
+        )
+
+        company_resources.add_method(
+            "GET",
+            company_integration
         )
 
         most_popular_method = most_popular_resource.add_method(
