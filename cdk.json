@@ -16,7 +16,7 @@
         "db_port": "3306",
         "rol_arn" : "arn:aws:iam::824404647578:role/StackSharedResources-LambdaExecutionRole-FW049PTC6FKD",
         "secret_name": "db_moodle_dev",
-        "layer_arn": "arn:aws:lambda:us-east-1:824404647578:layer:shared-resources-lib:2",
+        "layer_arn": "arn:aws:lambda:us-east-1:824404647578:layer:shared-resources-lib:4",
         "security_group_id": "sg-0e453c25b3154a2ee",
         "vcp_id": "vpc-0a79ec6fe620b8e17",
         "subnets": ["subnet-0a2901b9df6b6846f"],
