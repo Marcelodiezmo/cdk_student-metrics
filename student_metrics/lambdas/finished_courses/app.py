@@ -1,7 +1,6 @@
 import json
 import botocore
 import boto3
-import pymysql
 import os
 
 import constants
