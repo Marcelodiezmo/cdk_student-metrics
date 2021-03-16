@@ -34,7 +34,8 @@
         "security_group_id": "sg-f9a5c9b2",
         "vcp_id": "vpc-4f3dd135",
         "subnets": ["subnet-0aea8240", "subnet-430ca91f"],
-        "bucket_name": "student-metrics-test"
+        "bucket_name": "student-metrics-test",
+        "lambda_name": "_test"
       },
       "prod_values": {
         "rds_host": "moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
