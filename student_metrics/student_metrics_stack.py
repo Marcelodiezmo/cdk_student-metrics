@@ -15,25 +15,25 @@ class StudentMetricsStack(core.Stack):
         super().__init__(scope, construct_id, **kwargs)
 
         # Get variables by stage
-        shared_values = get_variables(self, stage)
+        shared_values = self.get_variables(self, stage)
 
         # Create the Bucket
         student_bucket = bucket_stack.bucketStack(self, 'student-metrics-' + stage, 'student-metrics-' + stage)
 
         # Create Lambdas
-        course_month_lambda = lambda_stack.lambdaStack(self, 'course_month', lambda_name='course_month', shared_varibles=shared_values, has_security=True)
+        course_month_lambda = lambda_stack.lambdaStack(self, 'course_month', lambda_name='course_month', shared_values=shared_values, has_security=True)
         student_bucket.student_bucket.grant_read(course_month_lambda.student_lambda)
 
-        most_popular_lambda = lambda_stack.lambdaStack(self, 'most_popular', lambda_name='most_popular', shared_varibles=shared_values, has_security=True)
+        most_popular_lambda = lambda_stack.lambdaStack(self, 'most_popular', lambda_name='most_popular', shared_values=shared_values, has_security=True)
         student_bucket.student_bucket.grant_read(most_popular_lambda.student_lambda)
 
-        ranking_company_lambda = lambda_stack.lambdaStack(self, 'ranking_company', lambda_name='ranking_company', shared_varibles=shared_values, has_security=True)
+        ranking_company_lambda = lambda_stack.lambdaStack(self, 'ranking_company', lambda_name='ranking_company', shared_values=shared_values, has_security=True)
         student_bucket.student_bucket.grant_read(ranking_company_lambda.student_lambda)
 
-        finished_courses_lambda = lambda_stack.lambdaStack(self, 'finished_courses', lambda_name='finished_courses', shared_varibles=shared_values, has_security=True)
+        finished_courses_lambda = lambda_stack.lambdaStack(self, 'finished_courses', lambda_name='finished_courses', shared_values=shared_values, has_security=True)
         student_bucket.student_bucket.grant_read(finished_courses_lambda.student_lambda)
 
-        dashboard_powerbi_lambda = lambda_stack.lambdaStack(self, 'dashboard_powerbi', lambda_name='dashboard_powerbi', shared_varibles=shared_values, has_security=False)
+        dashboard_powerbi_lambda = lambda_stack.lambdaStack(self, 'dashboard_powerbi', lambda_name='dashboard_powerbi', shared_values=shared_values, has_security=False)
         
         # Create the Api
         api_name = 'StudentMetrics'
@@ -139,13 +139,13 @@ class StudentMetricsStack(core.Stack):
             _agw.Stage(self, id='prod_stage', deployment=deployment_prod, stage_name='services')
 
 
-@staticmethod
-def get_variables(self, stage, has_security):
-    shared_values = self.node.try_get_context('shared_values')
+    @staticmethod
+    def get_variables(self, stage):
+        shared_values = self.node.try_get_context('shared_values')
 
-    if stage == 'test':
-        return shared_values['test_values']
-    elif stage == 'dev':
-        return shared_values['dev_values']
-    elif stage == 'prod':
-        return shared_values['prod_values']
+        if stage == 'test':
+            return shared_values['test_values']
+        elif stage == 'dev':
+            return shared_values['dev_values']
+        elif stage == 'prod':
+            return shared_values['prod_values']
