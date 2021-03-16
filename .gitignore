@@ -13,3 +13,4 @@ venv
 cdk.out
 
 .DS_Store
+.vscode/
