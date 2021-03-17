@@ -20,9 +20,12 @@ class Response(object):
         return {
             "statusCode": self.statusCode,
             "headers": self.headers,
-            "body": dumps(self.body.__dict__),
+            "body": dumps(self.body, default=self.obj_dict),
             "isBase64Encoded": False
         }
+    
+    def obj_dict(self, obj):
+        return obj.__dict__
 
 
 class ResponseFactory(Response):
