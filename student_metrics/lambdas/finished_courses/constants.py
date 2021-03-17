@@ -6,5 +6,5 @@ FREE_COURSES_COUNT = 'sum(Cursos_Obligatorios)'
 MANDATORY_COURSES = 'sum(Cursos_Libres)'
 COMPANY_ID = 'Id_Empresa'
 
-RESOURCE_FILE_NAME = 'finished_courses.json'
 RESOURCE_PATH = 'students/finished_courses/'
+RESOURCE_FILE_NAME = 'finished_courses.json'

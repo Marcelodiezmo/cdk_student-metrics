@@ -5,7 +5,9 @@ import os
 
 import constants
 from student_finished_courses import StudentFinishedCourses
-from response import Response
+# from response_factory_utils import ResponseFactory, ResponseError
+# from ..dashboard_powerbi.response_factory import ResponseFactory, ResponseError
+from response_factory_utils import ResponseFactory, ResponseError
 
 s3 = boto3.client('s3')
 
@@ -13,18 +15,10 @@ def exception_handler(response):
     if response.error_message == None or response.error_message == '':
         response.error_message = 'General Error'
 
-    responseBody = {
-        "code": response.code,
-        "error_message": response.error_message,
-    }
-
-    return {
-        'statusCode': response.code,
-        'headers': {
-            'Content-Type': 'application/json'
-        },
-        'body': json.dumps(responseBody)
-    }
+    response = ResponseFactory.error_client(response.code, response).toJSON()
+    
+    print(response)
+    return response
 
 def handler(event, context):
     studen_param_id = get_param_id(event, constants.STUDENT_ID_PARAM)
@@ -32,31 +26,29 @@ def handler(event, context):
     path = constants.RESOURCE_PATH
     key = path + constants.RESOURCE_FILE_NAME
 
-    response = Response()
-
     try:
         responseS3 = s3.get_object(Bucket=bucket, Key=key)
         content = responseS3['Body']
         jsonObject = json.loads(content.read())
-        response.data = get_data_from_json_object(jsonObject, studen_param_id)
+        data = get_data_from_json_object(jsonObject, studen_param_id)
+        response = ResponseFactory.ok_status(json.dumps(data, default=obj_dict)).toJSON()
 
-        response =  {
-            'statusCode': response.code,
-            'headers': {
-                'Content-Type': 'application/json'
-            },
-            'body': json.dumps(response.data, default = obj.__dict__)
-        }
+                    # 'body': json.dumps(response.data, default=obj_dict)
 
         return response
 
     except botocore.exceptions.ClientError as error:
-        response.error_message = str(error.response['Error']['Message'])
-        response.code = str(error.response['ResponseMetadata']['HTTPStatusCode'])
+        error_message = str(error.response['Error']['Message'])
+        code = str(error.response['ResponseMetadata']['HTTPStatusCode'])
+        response = ResponseError(code, error_message)
         return exception_handler(response)
-    except Exception:
-        response.code = 404
+    except Exception as e:
+        response = ResponseError(404, e.args[0])
+        print('ERROR: ', e.args[0])
         return exception_handler(response)
+
+def obj_dict(obj):
+    return obj.__dict__
 
         
 def get_param_id(event, paramId):
@@ -81,5 +73,39 @@ def map_finished_courses(record):
         record.get(constants.FREE_COURSES_COUNT, 0),
         record.get(constants.MANDATORY_COURSES, 0),
         record[constants.COMPANY_ID]
-    )
+    ).__dict__
     return student
+
+
+    
+def test_get_data_from_json_object():
+    # path = "/lambdas/finished_courses/test/"
+    filepath = 'C:/Desarrollo/Proyectos/Ubits/student-metrics/student_metrics/test/lambdas/finished_courses/resource/finished_courses.json'
+    content = open(filepath + '', "r")
+    json_object = json.loads(content.read())
+    # result = get_data_from_json_object(json_object, 11969)
+    result = get_data_from_json_object(json_object, '')
+    response = ResponseFactory.ok_status(result).toJSON()
+    # response = ResponseFactory.ok_status(json.dumps(data, default=obj_dict)).toJSON()
+    
+    print ('###################################')
+    print(response)
+    # print_iterator(result)
+    # print(len(result))
+
+def test_handler():
+    param_id = ''
+    event = {'pathParameters':{constants.STUDENT_ID_PARAM : param_id}}
+    os.environ['bucket_name'] = 'student-metrics'
+    result = handler(event, None)
+    print (result)
+
+    
+def print_iterator(it):
+    for x in it:
+        print(x, end=' ')
+    print('')  # for new line
+
+if __name__ == '__main__':
+    test_get_data_from_json_object()
+    # test_handler()
