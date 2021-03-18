@@ -20,9 +20,9 @@ def handler(event, context):
         content = responseS3['Body']
         jsonObject = json.loads(content.read())
         data = get_data_from_json_object(jsonObject, studen_param_id)
-        response = ResponseFactory.ok_status(data).toJSON()
+        response = ResponseFactory.ok_status(data)
 
-        return response
+        return response.toJSON()
 
     except botocore.exceptions.ClientError as error:
         error_message = str(error.response['Error']['Message'])
@@ -35,13 +35,11 @@ def handler(event, context):
         return exception_handler(response)
 
 def get_param_id(event, paramId):
-    paramValue = None
+    param_value = ''
     try:
-        paramValue = str(event['pathParameters'][paramId])
-    except Exception:
-        paramValue = ''
+        param_value = str(event['pathParameters'][paramId])
     finally:
-        return paramValue
+        return param_value
 
 def get_data_from_json_object(iterableList, studentIdParam):
     if(studentIdParam != ''):
