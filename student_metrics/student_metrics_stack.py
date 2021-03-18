@@ -52,13 +52,15 @@ class StudentMetricsStack(core.Stack):
         # Main Resources
         user_resource = api.root.add_resource("users")
         metrics_resource = user_resource.add_resource("metrics")
+        
         student_resource = api.root.add_resource("students")
+        students_metrics_resource = student_resource.add_resource("metrics")
 
         # Paths resources
         most_popular_resource = metrics_resource.add_resource("mostpopular")
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
-        finished_courses_resource = metrics_resource.add_resource("finishedcourses")
+        finished_courses_resource = students_metrics_resource.add_resource("finishedcourses")
         finished_courses_by_student_id_resource = finished_courses_resource.add_resource("{studentId}")
         company_resources = student_resource.add_resource("company")
         dashboard_powerbi_resource = student_resource.add_resource("dashboard")
