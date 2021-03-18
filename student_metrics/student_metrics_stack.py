@@ -60,7 +60,7 @@ class StudentMetricsStack(core.Stack):
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
         finished_courses_resource = metrics_resource.add_resource("finishedcourses")
         finished_courses_by_student_id_resource = finished_courses_resource.add_resource("{studentId}")
-        company_resources = metrics_resource.add_resource("company").add_resource("{companyId}")
+        company_resources = student_resource.add_resource("company")
         dashboard_powerbi_resource = student_resource.add_resource("dashboard")
 
         # Integrate API and courseMonth lambda
@@ -109,7 +109,8 @@ class StudentMetricsStack(core.Stack):
 
         company_resources.add_method(
             "GET",
-            company_integration
+            company_integration,
+            request_parameters={"method.request.querystring.studentId": False, "method.request.querystring.companyId": False}
         )
 
         most_popular_method = most_popular_resource.add_method(
