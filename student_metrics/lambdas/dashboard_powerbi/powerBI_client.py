@@ -11,7 +11,8 @@ WORKSPACE_ID = '54231e4b-5621-4453-a4e6-e3d996fbec9c'
 # Report Id for which Embed token needs to be generated
 REPORT_ID = 'a74fff32-9316-411c-83c7-37fbe9a542c7'
 
-# Id of the Azure tenant in which AAD app and Power BI report is hosted. Required only for ServicePrincipal authentication mode.
+# Id of the Azure tenant in which AAD app and Power BI report is hosted. Required only for ServicePrincipal
+# authentication mode.
 TENANT_ID = 'a0773bda-3c38-41c9-9529-13b2db7a3826'
 
 # Client Id (Application Id) of the AAD app
@@ -36,7 +37,8 @@ POWER_BI_PASS = 'Ubits+123'
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license
 class EmbedConfig:
-    # Camel casing is used for the member variables as they are going to be serialized and camel case is standard for JSON keys
+    # Camel casing is used for the member variables as they are going to be serialized and camel case is standard for
+    # JSON keys
     tokenId = None
     accessToken = None
     tokenExpiry = None
@@ -54,7 +56,8 @@ class EmbedConfig:
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license
 class EmbedToken:
-    # Camel casing is used for the member variables as they are going to be serialized and camel case is standard for JSON keys
+    # Camel casing is used for the member variables as they are going to be serialized and camel case is standard for
+    # JSON keys
     tokenId = None
     token = None
     tokenExpiry = None
@@ -68,7 +71,8 @@ class EmbedToken:
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license
 class EmbedTokenRequestBody:
-    # Camel casing is used for the member variables as they are going to be serialized and camel case is standard for JSON keys
+    # Camel casing is used for the member variables as they are going to be serialized and camel case is standard for
+    # JSON keys
     datasets = None
     reports = None
     targetWorkspaces = None
@@ -82,7 +86,8 @@ class EmbedTokenRequestBody:
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license
 class ReportConfig:
-    # Camel casing is used for the member variables as they are going to be serialized and camel case is standard for JSON keys
+    # Camel casing is used for the member variables as they are going to be serialized and camel case is standard for
+    # JSON keys
     reportId = None
     reportName = None
     embedUrl = None
