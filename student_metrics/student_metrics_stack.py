@@ -33,7 +33,7 @@ class StudentMetricsStack(core.Stack):
         finished_courses_lambda = lambda_stack.lambdaStack(self, 'finished_courses', lambda_name='finished_courses', shared_values=shared_values, has_security=True)
         student_bucket.student_bucket.grant_read(finished_courses_lambda.student_lambda)
 
-        company_lambda = lambda_stack.lambdaStack(self, 'company', lambda_name='company', stage=stage)
+        company_lambda = lambda_stack.lambdaStack(self, 'company', lambda_name='company', shared_values=shared_values, has_security=True)
 
         dashboard_powerbi_lambda = lambda_stack.lambdaStack(self, 'dashboard_powerbi', lambda_name='dashboard_powerbi', shared_values=shared_values, has_security=False)
         
@@ -76,7 +76,13 @@ class StudentMetricsStack(core.Stack):
         finished_courses_integration = _agw.LambdaIntegration(finished_courses_lambda.student_lambda)
 
         # Integrate companyinfo lambda
-        company_integration = _agw.LambdaIntegration(company_lambda.student_lambda)
+        company_integration = _agw.LambdaIntegration(
+            company_lambda.student_lambda,
+            request_parameters={
+                "integration.request.querystring.studentId": "method.request.querystring.studentId",
+                "integration.request.querystring.companyId": "method.request.querystring.companyId"
+            }
+        )
 
         # Integrate API and dashboard_powerbi lambda
         dashboard_powerbi_integration = _agw.LambdaIntegration(dashboard_powerbi_lambda.student_lambda)

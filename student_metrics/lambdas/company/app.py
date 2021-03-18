@@ -1,41 +1,60 @@
 import json
 import os
-import pandas as pd
-import boto3
-import io
+import response_factory
+import parquet as parquet
+import dao as dao
 
 
-s3 = boto3.client('s3')
+def exception_handler(response):
+    if response.error_message is None or response.error_message == '':
+        response.error_message = 'General Error'
 
-# Read single parquet file from S3
-def pd_read_s3_parquet(key, bucket, **args):
-    obj = s3.get_object(Bucket=bucket, Key=key)
-    return pd.read_parquet(io.BytesIO(obj['Body'].read()), **args)
+    response = response_factory.ResponseFactory.error_client(response.code, response).toJSON()
+    print(response)
+    return response
 
-def pd_read_s3_multiple_parquets(filepath, bucket, **args):
-    if not filepath.endswith('/'):
-        filepath = filepath + '/'
 
-    s3 = boto3.resource('s3')
-    s3_keys = [item.key for item in s3.Bucket(bucket).objects.filter(Prefix=filepath)
-               if item.key.endswith('.parquet')]
+def build_response_body(company_info):
+    print("Los datos son")
+    print(company_info)
 
-    if not s3_keys:
-        print('No parquet found in', bucket, filepath)
+    data = (str(company_info)[1:-1]).split(',')
 
-    dfs = [pd_read_s3_parquet(key, bucket=bucket, **args)
-           for key in s3_keys]
-    return pd.concat(dfs, ignore_index=True)
+    mapParquet = parquet.Company(
+        company_id=data[1],
+        company_name=data[2],
+        company_size=data[4],
+        company_renewal_date=data[7],
+        company_type=data[8]
+    )
+
+    return mapParquet
+
 
 def handler(event, context):
-    bucket = os.environ['bucket_name']
-    path = 'zoho/VersionTablasDevelop2/New_company_vigencia.parquet/'
-    companyId = int(event['pathParameters']['companyid'])
+    try:
+        bucket = os.environ['bucket_name']
+        path = 'zoho/VersionTablasDevelop2/New_company_vigencia.parquet/'
 
-    df = pd_read_s3_multiple_parquets(path, bucket=bucket)
-    # company = df.loc[df['company_id']==95, ['company_name']].to_json(orient="records")
+        student_id = int(event["queryStringParameters"]['studentId'])
+        company_id = int(event["queryStringParameters"]['companyId'])
 
-    # company = df.loc[df['company_id']==95].to_dict('records') #No se puede pasar a JSON por el datetime.date
-    company = df.loc[df['company_id']==95].to_json(orient="records")
-    print("El resultado es")
-    print(company)
+        # company = df.loc[df['company_id']==95, ['company_name']].to_json(orient="records")
+        # company = df.loc[df['company_id']==95].to_dict('records') #No se puede pasar a JSON por el datetime.date
+        df = parquet.AccessParquet().pd_read_s3_multiple_parquets(path, bucket=bucket)
+
+        if company_id:
+            company_info = df.loc[df['company_id'] == company_id].sort_values('end_date', ascending=['1']).iloc[0].to_json(orient="records")
+        elif student_id:
+            company_id = dao.get_company_id(student_id)
+            company_info = df.loc[df['company_id'] == company_id].sort_values('end_date', ascending=['1']).iloc[0].to_json(orient="records")
+
+        response_body = build_response_body(company_info)
+        response = response_factory.ResponseFactory.ok_status(response_body).toJSON()
+
+        print(response)
+        return response
+    except Exception as e:
+        response = response_factory.ResponseError(404, e.args[0])
+        print('ERROR: ', e.args[0])
+        return exception_handler(response)
