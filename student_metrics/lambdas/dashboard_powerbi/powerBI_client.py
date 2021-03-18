@@ -107,6 +107,7 @@ class PowerBIClientService:
         print("Constructor")
         self.header = self.get_header(self)
 
+    # Get header with JWT Token
     @staticmethod
     def get_header(self):
         print("Get Header for client")
@@ -120,6 +121,7 @@ class PowerBIClientService:
         print(header)
         return header
 
+    # Get the dashboard data
     def get_dashboard_url(self):
         print("Get URL Dashboard")
 
