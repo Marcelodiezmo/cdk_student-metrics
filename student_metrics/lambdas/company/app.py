@@ -40,11 +40,11 @@ def build_response_body(company_info):
 
 def handler(event, context):
     try:
-        bucket = 'analytics-ubits-production'
+        bucket = 'analytics-ubits-production-dev'
         path = 'zoho/VersionTablasDevelop2/New_company_vigencia.parquet/'
 
-        student_id = getParam(event["queryStringParameters"], 'studentid')
-        company_id = getParam(event["queryStringParameters"], 'companyid')
+        student_id = getParam(event, 'studentid')
+        company_id = getParam(event, 'companyid')
 
         # company = df.loc[df['company_id']==95, ['company_name']].to_json(orient="records")
         # company = df.loc[df['company_id']==95].to_dict('records') #No se puede pasar a JSON por el datetime.date
@@ -56,7 +56,7 @@ def handler(event, context):
             company_id = dao.get_company_id(student_id)
             search_company = df.loc[df['company_id'] == company_id].sort_values('end_date', ascending=['1'])
 
-        if not search_company.empty():
+        if not search_company.empty:
             company_info = search_company.iloc[0].to_dict()
             response_body = build_response_body(company_info)
             response = response_factory.ResponseFactory.ok_status(response_body).toJSON()
