@@ -96,7 +96,6 @@ class ReportConfig:
 
 
 class PowerBIClientService:
-
     header = None
 
     def __init__(self):
@@ -105,9 +104,10 @@ class PowerBIClientService:
 
     @staticmethod
     def get_header(self):
-        print("Get Header for client ")
+        print("Get Header for client")
         authority = AUTHORITY.replace('organizations', TENANT_ID)
         clientapp = msal.ConfidentialClientApplication(CLIENT_ID, client_credential=CLIENT_SECRET, authority=authority)
+
         # Make a client call if Access token is not available in cache
         response = clientapp.acquire_token_for_client(scopes=SCOPE)
         header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + response['access_token']}
@@ -115,34 +115,39 @@ class PowerBIClientService:
         print(header)
         return header
 
-    def get_url_dashboard(self):
+    def get_dashboard_url(self):
         print("Get URL Dashboard")
 
+        # Get report data
         report_url = f"https://api.powerbi.com/v1.0/myorg/groups/{WORKSPACE_ID}/reports/{REPORT_ID}"
         #report_url = f"https://api.powerbi.com/v1.0/myorg/groups/{WORKSPACE_ID}/reports/{REPORT_ID}?filter=user_full/company_name eq 'UBITS - Cliente'"
-        api_response = requests.get(report_url, headers=self.header)
+        response_report = requests.get(report_url, headers=self.header)
 
-        api_response = json.loads(api_response.text)
-        report = ReportConfig(api_response['id'], api_response['name'], api_response['embedUrl'])
+        print("ERROR: ", response_report.json())
+        if response_report.status_code != 200:
+            print("ERROR: ", response_report.status_code, response_report.json()["error"]["code"])
+            raise Exception(response_report.status_code, response_report.json()["error"]["code"])
 
-        dataset_ids = [api_response['datasetId']]
+        report_data = response_report.json()
+        report = ReportConfig(report_data['id'], report_data['name'], report_data['embedUrl'])
+
         request_body = EmbedTokenRequestBody()
-        request_body.datasets.append({'id': dataset_ids})
+        request_body.datasets.append({'id': [report_data['datasetId']]})
         request_body.reports.append({'id': REPORT_ID})
         request_body.targetWorkspaces.append({'id': WORKSPACE_ID})
 
+        # Get token for dashboard
         embed_token_api = f"https://api.powerbi.com/v1.0/myorg/groups/{WORKSPACE_ID}/reports/{REPORT_ID}/GenerateToken"
-        api_response = requests.post(embed_token_api, data=json.dumps(request_body.__dict__), headers=self.header)
-        print(api_response.status_code)
+        response_token = requests.post(embed_token_api, data=json.dumps(request_body.__dict__), headers=self.header)
+        print(response_token.status_code)
 
-        if api_response.status_code == 200:
-            api_response = json.loads(api_response.text)
-            embed_token = EmbedToken(api_response['tokenId'], api_response['token'], api_response['expiration'])
+        if response_token.status_code == 200:
+            response_token = response_token.json()
+            embed_token = EmbedToken(response_token['tokenId'], response_token['token'], response_token['expiration'])
             embed_config = EmbedConfig(embed_token.tokenId, embed_token.token, embed_token.tokenExpiry, [report.__dict__])
 
             print(embed_config)
-            #['reportConfig'][0]['reportName']
             return embed_config
         else:
             print("ERROR: ", "Error consuming the PowerBI API")
-            raise Exception("Error consuming the PowerBI API")
+            raise Exception(404, "Error consuming the PowerBI API")
