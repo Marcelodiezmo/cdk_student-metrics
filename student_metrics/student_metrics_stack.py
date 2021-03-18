@@ -52,14 +52,17 @@ class StudentMetricsStack(core.Stack):
         metrics_resource = user_resource.add_resource("metrics")
         
         student_resource = api.root.add_resource("students")
+        student_resource_by_id = student_resource.add_resource("{studentId}")
+        students_metrics_resource_by_id = student_resource_by_id.add_resource("metrics")
+
         students_metrics_resource = student_resource.add_resource("metrics")
 
         # Paths resources
         most_popular_resource = metrics_resource.add_resource("mostpopular")
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
+        finished_courses_by_student_id_resource = students_metrics_resource_by_id.add_resource("finishedcourses")
         finished_courses_resource = students_metrics_resource.add_resource("finishedcourses")
-        finished_courses_by_student_id_resource = finished_courses_resource.add_resource("{studentId}")
         dashboard_powerbi_resource = student_resource.add_resource("dashboard")
 
         # Integrate API and courseMonth lambda
