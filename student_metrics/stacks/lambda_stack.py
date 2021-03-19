@@ -30,6 +30,7 @@ class lambdaStack(core.Construct):
         subnets = shared_values["subnets"]
         vpc_id = shared_values["vcp_id"]
         bucket_name = shared_values["bucket_name"]
+        secret_name = shared_values["secret_name"]
 
         if "lambda_name" in shared_values:
             lambda_name = lambda_name + shared_values["lambda_name"]
@@ -65,8 +66,10 @@ class lambdaStack(core.Construct):
                 "db_pass": db_pass,
                 "db_name": db_name,
                 "db_port": db_port,
-                "bucket_name": bucket_name
-            }
+                "bucket_name": bucket_name,
+                "secret_name": secret_name
+            },
+            timeout=core.Duration.seconds(16)
         )
 
         student_lambda.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
