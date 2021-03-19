@@ -5,28 +5,27 @@ import pymysql
 import os
 
 import constants
+import parquet as parquet
+import dao as dao
 from student_progress_plan import StudentProgressPlan
 from response_factory import ResponseFactory, ResponseError
 
 s3 = boto3.client('s3')
 
 def handler(event, context):
-    student_param_id = get_param_id(event, constants.STUDENT_ID_PARAM)
     bucket = os.environ['bucket_name']
-    path = constants.RESOURCE_PATH
-    key = path + constants.RESOURCE_FILE_NAME
-    
+
+    student_param_id = get_param_id(event, constants.STUDENT_ID_PARAM)
+    company_id = dao.get_company_id(student_param_id)
+    print('company id: ' + company_id)
+    path = constants.RESOURCE_PATH + (constants.RESOURCE_COMPANY_PATH.format(company_id = str(company_id)))
+    print('key ' + key) 
+
     try:
 
-        print('Trying read S3 Object')
-        responseS3 = s3.get_object(Bucket=bucket, Key=key)
-        content = responseS3['Body']
-        print ('trying get body en content')
-        jsonObject = json.loads(content.read())
-        print ('trying get jsonObject')
-        student_param_id = 50
-        print(student_param_id)
-        data = get_data_from_json_object_2(jsonObject, student_param_id)
+        print('Trying read parquet Object')
+        df = parquet.AccessParquet().pd_read_s3_multiple_parquets(path, bucket=bucket)
+        data = get_data_from_parquet_by_student_id(df, student_param_id)
         print(len(data))
         response = ResponseFactory.ok_status(data)
         print ('Data ')
@@ -51,27 +50,18 @@ def get_param_id(event, paramId):
     finally:
         return param_value
 
-def get_data_from_json_object_2(iterableList, studentIdParam):
-    filtered_list = []
-    if(studentIdParam != ''):
-        for record in iterableList:
-            if str(record[constants.USER_ID]) == str(studentIdParam):
-                filtered_list.append(record) 
-                break 
-                
-    map_iterator = map(map_finished_courses, filtered_list)
-    return list(map_iterator)
+def get_data_from_parquet_by_student_id(df, student_param_id):
+    data = None
+    search_company = df.loc[df[constants.USER_ID] == student_param_id]     
+    if not search_company.empty:
+        company_info = search_company.iloc[0].to_dict()
+        data = map_progress_plan(company_info)
+    return list(data)
 
-def get_data_from_json_object(iterableList, studentIdParam):
-    if(studentIdParam != ''):
-        iterableList = filter(lambda record : str(record[constants.USER_ID]) == str(studentIdParam), iterableList)
-    map_iterator = map(map_finished_courses, iterableList)
-    return list(map_iterator)
-
-def map_finished_courses(record):
+def map_progress_plan(record):
     student = StudentProgressPlan(
-        record[constants.USER_ID], 
-        record.get(constants.PROGRESS_PERCENT, 0)
+        user_id=record[constants.USER_ID], 
+        progress_percent=record.get(constants.PROGRESS_PERCENT, 0)
     )
     return student
 
