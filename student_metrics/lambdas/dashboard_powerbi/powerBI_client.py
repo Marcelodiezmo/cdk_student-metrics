@@ -9,7 +9,7 @@ AUTHENTICATION_MODE = 'ServicePrincipal'
 WORKSPACE_ID = '54231e4b-5621-4453-a4e6-e3d996fbec9c'
 
 # Report Id for which Embed token needs to be generated
-REPORT_ID = 'a74fff32-9316-411c-83c7-37fbe9a542c7'
+REPORT_ID = '2a3d4458-c46b-4d16-a866-3ad414a12e34'
 
 # Id of the Azure tenant in which AAD app and Power BI report is hosted. Required only for ServicePrincipal
 # authentication mode.
@@ -107,6 +107,7 @@ class PowerBIClientService:
         print("Constructor")
         self.header = self.get_header(self)
 
+    # Get header with JWT Token
     @staticmethod
     def get_header(self):
         print("Get Header for client")
@@ -120,6 +121,7 @@ class PowerBIClientService:
         print(header)
         return header
 
+    # Get the dashboard data
     def get_dashboard_url(self):
         print("Get URL Dashboard")
 
