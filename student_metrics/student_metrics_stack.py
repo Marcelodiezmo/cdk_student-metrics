@@ -57,14 +57,11 @@ class StudentMetricsStack(core.Stack):
         student_resource_by_id = student_resource.add_resource("{studentId}")
         students_metrics_resource_by_id = student_resource_by_id.add_resource("metrics")
 
-        students_metrics_resource = student_resource.add_resource("metrics")
-
         # Paths resources
         most_popular_resource = metrics_resource.add_resource("mostpopular")
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
         finished_courses_by_student_id_resource = students_metrics_resource_by_id.add_resource("finishedcourses")
-        finished_courses_resource = students_metrics_resource.add_resource("finishedcourses")
         company_resource = student_resource.add_resource("company")
         dashboard_powerbi_resource = student_resource.add_resource("dashboard")
 
@@ -100,11 +97,6 @@ class StudentMetricsStack(core.Stack):
         ranking_company_resource.add_method(
             "GET",
             ranking_company_integration
-        )
-
-        finished_courses_resource.add_method(
-            "GET",
-            finished_courses_integration
         )
 
         finished_courses_by_student_id_resource.add_method(
