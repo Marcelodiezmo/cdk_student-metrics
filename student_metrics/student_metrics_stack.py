@@ -111,11 +111,6 @@ class StudentMetricsStack(core.Stack):
             finished_courses_integration
         )
 
-        progress_plan_resource.add_method(
-            "GET",
-            progress_plan_integration
-        )
-
         progress_plan_by_student_id_resource.add_method(
             "GET",
             progress_plan_integration

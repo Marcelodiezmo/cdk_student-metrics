@@ -14,16 +14,17 @@ s3 = boto3.client('s3')
 
 def handler(event, context):
     bucket = os.environ['bucket_name']
-
+    print('PROGRESS PLAN LAMBDA STARTED')
     student_param_id = get_param_id(event, constants.STUDENT_ID_PARAM)
+    print('student_param_id: ' + (student_param_id))
     company_id = dao.get_company_id(student_param_id)
-    print('company id: ' + company_id)
+    print('company id: ' + str(company_id))
     path = constants.RESOURCE_PATH + (constants.RESOURCE_COMPANY_PATH.format(company_id = str(company_id)))
-    print('key ' + key) 
+    print('key ' + path )
 
     try:
 
-        print('Trying read parquet Object')
+        print('Trying to read parquet Object')
         df = parquet.AccessParquet().pd_read_s3_multiple_parquets(path, bucket=bucket)
         data = get_data_from_parquet_by_student_id(df, student_param_id)
         print(len(data))
@@ -85,7 +86,7 @@ def test_get_data_from_json_object():
     print(len(result))
 
 def test_handler():
-    param_id = '4340'
+    param_id = '29043'
     event = {'pathParameters':{constants.STUDENT_ID_PARAM : param_id}}
     os.environ['bucket_name'] = 'student-metrics-dev'
     result = handler(event, None)
@@ -98,6 +99,6 @@ def print_iterator(it):
     print('')  # for new line
 
 if __name__ == '__main__':
-    test_get_data_from_json_object()
-    # test_handler()
+    # test_get_data_from_json_object()
+    test_handler()
     
