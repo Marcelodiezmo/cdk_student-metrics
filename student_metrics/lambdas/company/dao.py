@@ -23,13 +23,13 @@ def get_company_id(student_id):
         query = """Select muuai.mdl_u_company_id As companyId 
                         From mdl_user mu
                         Inner Join mdl_u_user_additional_info muuai on mu.id = muuai.mdl_user_id
-                    Where mu.id = """ + student_id + ";"
+                    Where mu.id = """ + str(student_id) + ";"
 
         cursor.execute(query)
         result = cursor.fetchall()
 
         if result:
-            return int(result[0][0])
+            return result[0][0]
         else:
             raise Exception("Error searching the company id")
 

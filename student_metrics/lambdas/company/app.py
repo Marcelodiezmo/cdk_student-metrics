@@ -48,13 +48,23 @@ def handler(event, context):
 
         # company = df.loc[df['company_id']==95, ['company_name']].to_json(orient="records")
         # company = df.loc[df['company_id']==95].to_dict('records') #No se puede pasar a JSON por el datetime.date
-        df = parquet.AccessParquet().pd_read_s3_multiple_parquets(path, bucket=bucket)
+
+        # df = parquet.AccessParquet().pd_read_s3_multiple_parquets(path, bucket=bucket)
 
         if company_id != 0:
-            search_company = df.loc[df['company_id'] == company_id].sort_values('end_date', ascending=['1'])
-        elif student_id:
+            df = parquet.AccessParquet().pd_read_s3_multiple_parquets(path, bucket=bucket, columns=['company_id','company_name','licencias','Tamaño_Licencias','end_date'],filters=[('company_id','=',company_id)])
+            # search_company = df.loc[df['company_id'] == company_id].sort_values('end_date', ascending=['1'])
+        elif student_id != 0:
             company_id = dao.get_company_id(student_id)
-            search_company = df.loc[df['company_id'] == company_id].sort_values('end_date', ascending=['1'])
+            df = parquet.AccessParquet().pd_read_s3_multiple_parquets(path, bucket=bucket, columns=['company_id','company_name','licencias','Tamaño_Licencias','end_date'],filters=[('company_id','=',int(company_id))])
+            # search_company = df.loc[df['company_id'] == company_id].sort_values('end_date', ascending=['1'])
+        else:
+            raise Exception("Necessary Filters")
+
+        if not df.empty:
+            search_company = df.sort_values('end_date', ascending=['1'])
+        else:
+            raise Exception("No company found")
 
         if not search_company.empty:
             company_info = search_company.iloc[0].to_dict()
