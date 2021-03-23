@@ -33,6 +33,8 @@ class StudentMetricsStack(core.Stack):
         finished_courses_lambda = lambda_stack.lambdaStack(self, 'finished_courses', lambda_name='finished_courses', shared_values=shared_values, has_security=True)
         student_bucket.student_bucket.grant_read(finished_courses_lambda.student_lambda)
 
+        company_lambda = lambda_stack.lambdaStack(self, 'company', lambda_name='company', shared_values=shared_values, has_security=True)
+
         dashboard_powerbi_lambda = lambda_stack.lambdaStack(self, 'dashboard_powerbi', lambda_name='dashboard_powerbi', shared_values=shared_values, has_security=False)
         
         # Create the Api
@@ -55,14 +57,12 @@ class StudentMetricsStack(core.Stack):
         student_resource_by_id = student_resource.add_resource("{studentId}")
         students_metrics_resource_by_id = student_resource_by_id.add_resource("metrics")
 
-        students_metrics_resource = student_resource.add_resource("metrics")
-
         # Paths resources
         most_popular_resource = metrics_resource.add_resource("mostpopular")
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
         finished_courses_by_student_id_resource = students_metrics_resource_by_id.add_resource("finishedcourses")
-        finished_courses_resource = students_metrics_resource.add_resource("finishedcourses")
+        company_resource = student_resource.add_resource("company")
         dashboard_powerbi_resource = student_resource.add_resource("dashboard")
 
         # Integrate API and courseMonth lambda
@@ -78,6 +78,15 @@ class StudentMetricsStack(core.Stack):
         finished_courses_integration = _agw.LambdaIntegration(finished_courses_lambda.student_lambda)
 
         # Integrate API and dashboard_powerbi lambda
+        company_integration = _agw.LambdaIntegration(
+            company_lambda.student_lambda,
+            request_parameters={
+                "integration.request.querystring.studentid": "method.request.querystring.studentid",
+                "integration.request.querystring.companyid": "method.request.querystring.companyid"
+            }
+        )
+
+        # Integrate API and dashboard_powerbi lambda
         dashboard_powerbi_integration = _agw.LambdaIntegration(dashboard_powerbi_lambda.student_lambda)
 
         course_month_resource.add_method(
@@ -90,11 +99,6 @@ class StudentMetricsStack(core.Stack):
             ranking_company_integration
         )
 
-        finished_courses_resource.add_method(
-            "GET",
-            finished_courses_integration
-        )
-
         finished_courses_by_student_id_resource.add_method(
             "GET",
             finished_courses_integration
@@ -104,6 +108,12 @@ class StudentMetricsStack(core.Stack):
             "GET",
             most_popular_integration
             # api_key_required=True
+        )
+
+        company_resource.add_method(
+            "GET",
+            company_integration,
+            request_parameters={"method.request.querystring.studentid": False, "method.request.querystring.companyid": False}
         )
 
         dashboard_powerbi_method = dashboard_powerbi_resource.add_method(
