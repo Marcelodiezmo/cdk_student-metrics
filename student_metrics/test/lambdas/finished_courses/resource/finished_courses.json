@@ -1,0 +1,34 @@
+[
+  {
+    "Id_Usuario": 35442,
+    "Fecha_de_Finalizacion": "2021-03-09",
+    "sum(Cursos_Libres)": 2,
+    "Id_Empresa": "116"
+  },
+  {
+    "Id_Usuario": 11969,
+    "Fecha_de_Finalizacion": "2021-03-09",
+    "sum(Cursos_Libres)": 1,
+    "Id_Empresa": "62"
+  },
+  {
+    "Id_Usuario": 39564,
+    "Fecha_de_Finalizacion": "2021-03-09",
+    "sum(Cursos_Obligatorios)": 2,
+    "sum(Cursos_Libres)": 2,
+    "Id_Empresa": "86"
+  },
+  {
+    "Id_Usuario": 39604,
+    "Fecha_de_Finalizacion": "2021-03-09",
+    "sum(Cursos_Obligatorios)": 1,
+    "sum(Cursos_Libres)": 2,
+    "Id_Empresa": "86"
+  },
+  {
+    "Id_Usuario": 137177,
+    "Fecha_de_Finalizacion": "2021-03-09",
+    "sum(Cursos_Obligatorios)": 2,
+    "Id_Empresa": "776"
+  }
+]
