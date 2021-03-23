@@ -118,7 +118,6 @@ class PowerBIClientService:
         response = clientapp.acquire_token_for_client(scopes=SCOPE)
         header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + response['access_token']}
 
-        print(header)
         return header
 
     # Get the dashboard data
@@ -130,7 +129,6 @@ class PowerBIClientService:
         #report_url = f"https://api.powerbi.com/v1.0/myorg/groups/{WORKSPACE_ID}/reports/{REPORT_ID}?filter=user_full/company_name eq 'UBITS - Cliente'"
         response_report = requests.get(report_url, headers=self.header)
 
-        print("ERROR: ", response_report.json())
         if response_report.status_code != 200:
             print("ERROR: ", response_report.status_code, response_report.json()["error"]["code"])
             raise Exception(response_report.status_code, response_report.json()["error"]["code"])
