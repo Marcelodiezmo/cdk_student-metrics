@@ -35,15 +35,16 @@ def handler(event, context):
         return exception_handler(response)
 
 def get_param_id(event, paramId):
-    param_value = ''
+    param_value = None
     try:
         param_value = str(event['pathParameters'][paramId])
     finally:
         return param_value
 
 def get_data_from_json_object(iterableList, studentIdParam):
-    if(studentIdParam != ''):
+    if(studentIdParam != None):
         iterableList = filter(lambda record : str(record[constants.USER_ID]) == str(studentIdParam), iterableList)
+
     map_iterator = map(map_finished_courses, iterableList)
     return list(map_iterator)
 
