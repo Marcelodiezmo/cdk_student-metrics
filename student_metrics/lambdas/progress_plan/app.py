@@ -17,20 +17,24 @@ def handler(event, context):
     print('PROGRESS PLAN LAMBDA STARTED')
     student_param_id = get_param_id(event, constants.STUDENT_ID_PARAM)
     print('student_param_id: ' + (student_param_id))
-    company_id = dao.get_company_id(student_param_id)
+    # company_id = dao.get_company_id(student_param_id)
+    company_id = 101
     print('company id: ' + str(company_id))
     path = constants.RESOURCE_PATH + (constants.RESOURCE_COMPANY_PATH.format(company_id = str(company_id)))
     print('key ' + path )
-
     try:
-
         print('Trying to read parquet Object')
-        df = parquet.AccessParquet().pd_read_s3_multiple_parquets(path, bucket=bucket)
-        data = get_data_from_parquet_by_student_id(df, student_param_id)
-        print(len(data))
+        search_student = parquet.AccessParquet().pd_read_s3_multiple_parquets(
+            path,
+            bucket=bucket,
+            filters=[(constants.USER_ID, '=', student_param_id)]
+        )
+
+        if not search_student.empty:
+            search_student = search_student.iloc[0].to_dict()
+
+        data = map_progress_plan(search_student)
         response = ResponseFactory.ok_status(data)
-        print ('Data ')
-        print (data)
 
         return response.toJSON()
 
@@ -50,14 +54,6 @@ def get_param_id(event, paramId):
         param_value = str(event['pathParameters'][paramId])
     finally:
         return param_value
-
-def get_data_from_parquet_by_student_id(df, student_param_id):
-    data = None
-    search_company = df.loc[df[constants.USER_ID] == student_param_id]     
-    if not search_company.empty:
-        company_info = search_company.iloc[0].to_dict()
-        data = map_progress_plan(company_info)
-    return list(data)
 
 def map_progress_plan(record):
     student = StudentProgressPlan(
