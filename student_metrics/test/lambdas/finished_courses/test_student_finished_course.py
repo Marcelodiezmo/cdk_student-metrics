@@ -1,4 +1,4 @@
-    
+
 def test_get_data_from_json_object():
     # path = "/lambdas/finished_courses/test/"
     filepath = 'C:/Desarrollo/Proyectos/Ubits/student-metrics/student_metrics/test/lambdas/finished_courses/resource/finished_courses.json'
@@ -19,9 +19,9 @@ def test_get_data_from_json_object():
     # print(len(result))
 
 def test_handler():
-    param_id = ''
+    param_id = None
     event = {'pathParameters':{constants.STUDENT_ID_PARAM : param_id}}
-    os.environ['bucket_name'] = 'student-metrics'
+    os.environ['bucket_name'] = 'student-metrics-dev'
     result = handler(event, None)
     print (result)
 
@@ -32,5 +32,5 @@ def print_iterator(it):
     print('')  # for new line
 
 if __name__ == '__main__':
-    test_get_data_from_json_object()
-    # test_handler()
+    # test_get_data_from_json_object()
+    test_handler()
