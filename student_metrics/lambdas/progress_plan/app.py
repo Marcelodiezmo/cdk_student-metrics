@@ -16,17 +16,17 @@ def handler(event, context):
     print('PROGRESS PLAN LAMBDA STARTED')
     bucket = os.environ['bucket_name']
     student_param_id = get_param_id(event, constants.STUDENT_ID_PARAM)
-    if student_param_id == None:
+    if student_param_id == None or student_param_id == '':
         response = ResponseError(400, 'Bad request, student id in path no found')
         print('ERROR: ', str(response))
         return exception_handler(response)
 
-    print('student_param_id: ' + (student_param_id))
-    company_id = dao.get_company_id(student_param_id)
-    print('company id: ' + str(company_id))
-    path = constants.RESOURCE_PATH + (constants.RESOURCE_COMPANY_PATH.format(company_id = str(company_id)))
-    print('key ' + path )
     try:
+        print('student_param_id: ' + (student_param_id))
+        company_id = dao.get_company_id(student_param_id)
+        print('company id: ' + str(company_id))
+        path = constants.RESOURCE_PATH + (constants.RESOURCE_COMPANY_PATH.format(company_id = str(company_id)))
+        print('key ' + path )
         print('Trying to read parquet Object')
         search_student = parquet.AccessParquet().pd_read_s3_multiple_parquets(
             path,

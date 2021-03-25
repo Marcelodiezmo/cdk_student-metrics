@@ -4,6 +4,7 @@ import secret
 import json
 
 
+
 def get_company_id(student_id):
     rds_host = os.environ['rds_host']
     db_user = os.environ['db_user']
@@ -27,7 +28,7 @@ def get_company_id(student_id):
         if result:
             return result[0][0]
         else:
-            raise Exception("Error searching the company id")
+            raise Exception("Company with student id " + str(student_id) + " not found")
 
         conn.close()
 
