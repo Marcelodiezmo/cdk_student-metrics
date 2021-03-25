@@ -26,10 +26,7 @@ def build_response_body(company_info, company_id):
     company_size = str(company_info['licencias'])
     company_renewal_date = str(company_info['end_date'])
 
-    try:
-        company_type = str(company_info['Tamaño_Licencias'])
-    except:
-        company_type = str(company_info['Tama?o_Licencias'])
+    company_type = company_info.get('Tamaño_Licencias', company_info.get('Tama?o_Licencias'))
 
     mapParquet = parquet.Company(
         company_id=company_id,
@@ -48,7 +45,6 @@ def handler(event, context):
         company_id = getParam(event, 'companyid')
 
         bucket = constants.BUCKET_NAME
-        path = constants.RESOURCE_PATH + (constants.RESOURCE_COMPANY_PATH.format(company_id=str(company_id)))
 
         # company = df.loc[df['company_id']==95, ['company_name']].to_json(orient="records")
         # company = df.loc[df['company_id']==95].to_dict('records') #No se puede pasar a JSON por el datetime.date
