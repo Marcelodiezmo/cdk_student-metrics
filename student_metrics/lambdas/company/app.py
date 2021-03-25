@@ -25,7 +25,11 @@ def build_response_body(company_info, company_id):
     company_name = str(company_info['company_name'])
     company_size = str(company_info['licencias'])
     company_renewal_date = str(company_info['end_date'])
-    company_type = str(company_info['Tama?o_Licencias'])
+
+    try:
+        company_type = str(company_info['Tamaño_Licencias'])
+    except:
+        company_type = str(company_info['Tama?o_Licencias'])
 
     mapParquet = parquet.Company(
         company_id=company_id,
@@ -62,6 +66,7 @@ def handler(event, context):
             raise Exception("Necessary Filters")
 
         if not df.empty:
+            print(df.to_dict('records'))
             search_company = df.sort_values(by=['end_date'], ascending=[0])
         else:
             raise Exception("No company found")

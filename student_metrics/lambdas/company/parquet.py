@@ -36,6 +36,7 @@ class AccessParquet:
 
         if not s3_keys:
             print('No parquet found in', bucket, filepath)
+            raise Exception("No company found")
 
         dfs = [self.pd_read_s3_parquet(key, bucket=bucket, **args)
                for key in s3_keys]

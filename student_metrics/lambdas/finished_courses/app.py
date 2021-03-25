@@ -11,6 +11,11 @@ s3 = boto3.client('s3')
 
 def handler(event, context):
     studen_param_id = get_param_id(event, constants.STUDENT_ID_PARAM)
+    if studen_param_id == '':
+        response = ResponseError(400, constants.STUDENT_ID_PARAM + ' empty')
+        print('ERROR: ', str(response))
+        return exception_handler(response)
+
     bucket = os.environ['bucket_name']
     path = constants.RESOURCE_PATH
     key = path + constants.RESOURCE_FILE_NAME
@@ -50,11 +55,11 @@ def get_data_from_json_object(iterableList, studentIdParam):
 
 def map_finished_courses(record):
     student = StudentFinishedCourses(
-        record[constants.USER_ID], 
-        record[constants.FINISHED_DATE],
+        record.get(constants.USER_ID),
+        record.get(constants.FINISHED_DATE),
         record.get(constants.FREE_COURSES_COUNT, 0),
         record.get(constants.MANDATORY_COURSES, 0),
-        record[constants.COMPANY_ID]
+        record.get(constants.COMPANY_ID)
     )
     return student
 

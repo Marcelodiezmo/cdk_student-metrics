@@ -4,14 +4,10 @@ def test_get_data_from_json_object():
     filepath = 'C:/Desarrollo/Proyectos/Ubits/student-metrics/student_metrics/test/lambdas/finished_courses/resource/finished_courses.json'
     content = open(filepath + '', "r")
     json_object = json.loads(content.read())
-    # result = get_data_from_json_object(json_object, 11969)
-    result = get_data_from_json_object(json_object, '')
+    result = get_data_from_json_object(json_object, 11969)
+    # result = get_data_from_json_object(json_object, None)
 
-    # response = {
-    #     'body': json.dumps(result, default=obj_dict)
-    # }
     response = ResponseFactory.ok_status(result).toJSON()
-    # response = ResponseFactory.ok_status(json.dumps(data, default=obj_dict)).toJSON()
     
     print ('###################################')
     print(response)
@@ -32,5 +28,5 @@ def print_iterator(it):
     print('')  # for new line
 
 if __name__ == '__main__':
-    # test_get_data_from_json_object()
-    test_handler()
+    test_get_data_from_json_object()
+    # test_handler()
