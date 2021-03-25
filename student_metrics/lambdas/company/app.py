@@ -25,8 +25,7 @@ def build_response_body(company_info, company_id):
     company_name = str(company_info['company_name'])
     company_size = str(company_info['licencias'])
     company_renewal_date = str(company_info['end_date'])
-
-    company_type = company_info.get('Tamaño_Licencias', company_info.get('Tama?o_Licencias'))
+    company_type = str(company_info['size'])
 
     mapParquet = parquet.Company(
         company_id=company_id,
