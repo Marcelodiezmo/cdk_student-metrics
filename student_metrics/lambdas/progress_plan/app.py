@@ -13,12 +13,16 @@ from response_factory import ResponseFactory, ResponseError
 s3 = boto3.client('s3')
 
 def handler(event, context):
-    bucket = os.environ['bucket_name']
     print('PROGRESS PLAN LAMBDA STARTED')
+    bucket = os.environ['bucket_name']
     student_param_id = get_param_id(event, constants.STUDENT_ID_PARAM)
+    if student_param_id == None:
+        response = ResponseError(400, 'Bad request, student id in path no found')
+        print('ERROR: ', str(response))
+        return exception_handler(response)
+
     print('student_param_id: ' + (student_param_id))
-    # company_id = dao.get_company_id(student_param_id)
-    company_id = 101
+    company_id = dao.get_company_id(student_param_id)
     print('company id: ' + str(company_id))
     path = constants.RESOURCE_PATH + (constants.RESOURCE_COMPANY_PATH.format(company_id = str(company_id)))
     print('key ' + path )
@@ -49,7 +53,7 @@ def handler(event, context):
         return exception_handler(response)
 
 def get_param_id(event, paramId):
-    param_value = ''
+    param_value = None
     try:
         param_value = str(event['pathParameters'][paramId])
     finally:
@@ -70,31 +74,3 @@ def exception_handler(response):
     
     print(response)
     return response
-
-def test_get_data_from_json_object():
-    filepath = 'C:/Desarrollo/Proyectos/Ubits/student-metrics/student_metrics/test/lambdas/progress_plan/resource/progress_plan.json'
-    content = open(filepath + '', "r")
-    json_object = json.loads(content.read())
-    # result = get_data_from_json_object(json_object, '')
-    result = get_data_from_json_object_2(json_object, 50)
-    print ('###################################')
-    print_iterator(result)
-    print(len(result))
-
-def test_handler():
-    param_id = '29043'
-    event = {'pathParameters':{constants.STUDENT_ID_PARAM : param_id}}
-    os.environ['bucket_name'] = 'student-metrics-dev'
-    result = handler(event, None)
-    print (result)
-
-    
-def print_iterator(it):
-    for x in it:
-        print(x, end=' ')
-    print('')  # for new line
-
-if __name__ == '__main__':
-    # test_get_data_from_json_object()
-    test_handler()
-    

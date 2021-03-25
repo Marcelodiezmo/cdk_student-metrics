@@ -5,16 +5,6 @@ import json
 
 
 def get_company_id(student_id):
-     # Use with AWS Secret Manager
-    # secret_values = secret.get_secret(os.environ['secret_name'], 'us-east-1')
-    # data = json.loads(secret_values)
-    #
-    # rds_host = data['host']
-    # db_user = data['username']
-    # db_pass = data['password']
-    # db_name = os.environ['db_name']
-    # db_port = int(data['port'])
-
     rds_host = os.environ['rds_host']
     db_user = os.environ['db_user']
     db_pass = os.environ['db_pass']
@@ -35,7 +25,7 @@ def get_company_id(student_id):
         result = cursor.fetchall()
 
         if result:
-            return int(result[0][0])
+            return result[0][0]
         else:
             raise Exception("Error searching the company id")
 
