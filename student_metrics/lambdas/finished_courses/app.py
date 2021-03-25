@@ -50,11 +50,11 @@ def get_data_from_json_object(iterableList, studentIdParam):
 
 def map_finished_courses(record):
     student = StudentFinishedCourses(
-        record[constants.USER_ID], 
-        record[constants.FINISHED_DATE],
+        record.get(constants.USER_ID),
+        record.get(constants.FINISHED_DATE),
         record.get(constants.FREE_COURSES_COUNT, 0),
         record.get(constants.MANDATORY_COURSES, 0),
-        record[constants.COMPANY_ID]
+        record.get(constants.COMPANY_ID)
     )
     return student
 
