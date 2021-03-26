@@ -33,6 +33,9 @@ class StudentMetricsStack(core.Stack):
         finished_courses_lambda = lambda_stack.lambdaStack(self, 'finished_courses', lambda_name='finished_courses', shared_values=shared_values, has_security=True)
         student_bucket.student_bucket.grant_read(finished_courses_lambda.student_lambda)
 
+        progress_plan_lambda = lambda_stack.lambdaStack(self, 'progress_plan', lambda_name='progress_plan', shared_values=shared_values, has_security=True)
+        student_bucket.student_bucket.grant_read(progress_plan_lambda.student_lambda)
+
         company_lambda = lambda_stack.lambdaStack(self, 'company', lambda_name='company', shared_values=shared_values, has_security=True)
 
         dashboard_powerbi_lambda = lambda_stack.lambdaStack(self, 'dashboard_powerbi', lambda_name='dashboard_powerbi', shared_values=shared_values, has_security=False)
@@ -62,6 +65,7 @@ class StudentMetricsStack(core.Stack):
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
         finished_courses_by_student_id_resource = students_metrics_resource_by_id.add_resource("finishedcourses")
+        progress_plan_by_student_id_resource = students_metrics_resource_by_id.add_resource("progressplan")
         company_resource = student_resource.add_resource("companies")
         dashboard_powerbi_resource = student_resource.add_resource("dashboard")
 
@@ -76,6 +80,9 @@ class StudentMetricsStack(core.Stack):
 
         # Integrate API and finishedcourses lambda
         finished_courses_integration = _agw.LambdaIntegration(finished_courses_lambda.student_lambda)
+
+        # Integrate API and progressplan lambda
+        progress_plan_integration = _agw.LambdaIntegration(progress_plan_lambda.student_lambda)
 
         # Integrate API and dashboard_powerbi lambda
         company_integration = _agw.LambdaIntegration(
@@ -102,6 +109,11 @@ class StudentMetricsStack(core.Stack):
         finished_courses_by_student_id_resource.add_method(
             "GET",
             finished_courses_integration
+        )
+
+        progress_plan_by_student_id_resource.add_method(
+            "GET",
+            progress_plan_integration
         )
 
         most_popular_method = most_popular_resource.add_method(
