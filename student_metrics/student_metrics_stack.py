@@ -84,7 +84,7 @@ class StudentMetricsStack(core.Stack):
         # Integrate API and progressplan lambda
         progress_plan_integration = _agw.LambdaIntegration(progress_plan_lambda.student_lambda)
 
-        # Integrate API and dashboard_powerbi lambda
+        # Integrate API and company lambda
         company_integration = _agw.LambdaIntegration(
             company_lambda.student_lambda,
             request_parameters={
