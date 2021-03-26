@@ -5,6 +5,8 @@ import boto3
 s3 = boto3.client('s3')
 
 class AccessParquet:
+    ERROR_MESSAGE = 'No parquet found in {} {}'
+
     # Read single parquet file from S3
     @staticmethod
     def pd_read_s3_parquet(key, bucket, **args):
@@ -20,7 +22,9 @@ class AccessParquet:
                    if item.key.endswith('.parquet')]
 
         if not s3_keys:
-            print('No parquet found in', bucket, filepath)
+            msg = self.ERROR_MESSAGE.format(bucket, filepath)
+            print(msg)
+            raise Exception(msg)
 
         dfs = [self.pd_read_s3_parquet(key, bucket=bucket, **args)
                for key in s3_keys]
