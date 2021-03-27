@@ -20,6 +20,13 @@ def handler(event, context):
         response = ResponseError(400, 'Bad request, student id in path no found')
         print('ERROR: ', str(response))
         return exception_handler(response)
+    
+    try:
+        int(student_param_id)
+    except ValueError:
+        response = ResponseError(400, 'Bad request, student id must be a numeric value')
+        print('ERROR: ', str(response))
+        return exception_handler(response)
 
     try:
         print('student_param_id: ' + (student_param_id))
@@ -59,10 +66,11 @@ def get_param_id(event, paramId):
     finally:
         return param_value
 
+
 def map_progress_plan(record):
     student = StudentProgressPlan(
-        user_id=record[constants.USER_ID], 
-        progress_percent=record.get(constants.PROGRESS_PERCENT, 0)
+        user_id = int(record.get(constants.USER_ID)),
+        progress_percent = "{:.2f}".format(record.get(constants.PROGRESS_PERCENT, 0))
     )
     return student
 
