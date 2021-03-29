@@ -49,11 +49,22 @@ def get_param_id(event, paramId):
 def get_data_from_json_object(iterableList, studentIdParam):
     if(studentIdParam != None):
         iterableList = filter(lambda record : str(record[constants.USER_ID]) == str(studentIdParam), iterableList)
-
+    else:
+        iterableList = filter(lambda record: (
+                not ((record.get(constants.FREE_COURSES_COUNT) == None)
+                    and (record.get(constants.MANDATORY_COURSES) == None))
+            ), iterableList
+        )
+        
     map_iterator = map(map_finished_courses, iterableList)
     return list(map_iterator)
 
 def map_finished_courses(record):
+    if (record.get(constants.FREE_COURSES_COUNT) == None 
+        and record.get(constants.MANDATORY_COURSES) == None):
+        raise Exception("Student with id '{}' has not '{}' and '{}' keys".format(
+            record.get(constants.USER_ID), constants.FREE_COURSES_COUNT, constants.MANDATORY_COURSES))
+
     student = StudentFinishedCourses(
         record.get(constants.USER_ID),
         record.get(constants.FINISHED_DATE),
