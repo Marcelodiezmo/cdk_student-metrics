@@ -70,7 +70,7 @@ def get_param_id(event, paramId):
 def map_progress_plan(record):
     student = StudentProgressPlan(
         user_id = int(record.get(constants.USER_ID)),
-        progress_percent = "{:.2f}".format(record.get(constants.PROGRESS_PERCENT, 0))
+        progress_percent = float("{:.2f}".format(record.get(constants.PROGRESS_PERCENT, 0)))
     )
     return student
 
