@@ -1,0 +1,77 @@
+---
+swagger: "2.0"
+info:
+  description: "API for users metrics"
+  version: "2021-03-26T16:35:35Z"
+  title: "StudentMetrics"
+host: "5jl103iwe6.execute-api.us-east-1.amazonaws.com"
+basePath: "/dev"
+schemes:
+- "https"
+paths:
+  /students/companies:
+    get:
+      parameters:
+      - name: "studentid"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "companyid"
+        in: "query"
+        required: false
+        type: "string"
+      responses: 
+        200:
+          description: Ok
+  /students/dashboard:
+    get:
+      responses: 
+        200:
+          description: Ok 
+  /students/{studentId}/metrics/finishedcourses:
+    get:
+      parameters:
+        - in: path
+          name: studentId
+          description: get finished courses info by student id
+          required: true
+          type: string
+      responses:
+        200:
+          description: Ok
+        400:
+          description: Bad request. Student id not found
+        404:
+          description: Error, student with id not found or does not have mandatory attributes.
+  /students/{studentId}/metrics/progressplan:
+    get:
+      parameters:
+        - in: path
+          name: studentId
+          description: get finished courses info by student id
+          required: true
+          type: string
+      responses: 
+        200:
+          description: Ok
+  /users/metrics/coursemonth:
+    get:
+      responses: 
+        200:
+          description: Ok
+  /users/metrics/mostpopular:
+    get:
+      responses: 
+        200:
+          description: Ok
+  /users/metrics/rankingcompany/{companyId}:
+    get:
+      parameters:
+        - in: path
+          name: companyId
+          description: get ranking company info by company id
+          required: true
+          type: string
+      responses: 
+        200:
+          description: Ok
