@@ -52,24 +52,32 @@ def get_data_from_json_object(iterableList, studentIdParam):
     else:
         iterableList = filter(lambda record: (
                 not ((record.get(constants.FREE_COURSES_COUNT) == None)
-                    and (record.get(constants.MANDATORY_COURSES) == None))
+                    and (record.get(constants.MANDATORY_COURSES) == None)
+                    and (record.get(constants.MANDATORY_COURSES_ASSIGNED) == None))
             ), iterableList
         )
         
     map_iterator = map(map_finished_courses, iterableList)
     return list(map_iterator)
 
+# MANDATORY_COURSES_ASSIGNED
 def map_finished_courses(record):
     if (record.get(constants.FREE_COURSES_COUNT) == None 
-        and record.get(constants.MANDATORY_COURSES) == None):
-        raise Exception("Student with id '{}' has not '{}' and '{}' keys".format(
-            record.get(constants.USER_ID), constants.FREE_COURSES_COUNT, constants.MANDATORY_COURSES))
+        and record.get(constants.MANDATORY_COURSES) == None
+        and record.get(constants.MANDATORY_COURSES_ASSIGNED) == None ):
+        raise Exception("Student with id '{}' has not '{}', {} and '{}' keys".format(
+            record.get(constants.USER_ID), 
+            constants.FREE_COURSES_COUNT, 
+            constants.MANDATORY_COURSES, 
+            constants.MANDATORY_COURSES_ASSIGNED)
+            )
 
     student = StudentFinishedCourses(
         record.get(constants.USER_ID),
         record.get(constants.FINISHED_DATE),
         record.get(constants.FREE_COURSES_COUNT, 0),
         record.get(constants.MANDATORY_COURSES, 0),
+        record.get(constants.MANDATORY_COURSES_ASSIGNED, 0),
         record.get(constants.COMPANY_ID)
     )
     return student
