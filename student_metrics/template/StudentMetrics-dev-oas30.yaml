@@ -1,0 +1,145 @@
+openapi: 3.0.1
+info:
+  title: StudentMetrics
+  description: API for users metrics
+  version: "1.0.0"
+servers:
+- url: https://5jl103iwe6.execute-api.us-east-1.amazonaws.com/dev
+paths:
+  /students/companies:
+    get:
+      parameters:
+      - name: studentid
+        in: query
+        schema:
+          type: string
+      - name: companyid
+        in: query
+        schema:
+          type: string
+      responses:
+        200:
+          description: Ok
+          content: {}
+  /students/dashboard:
+    get:
+      responses:
+        200:
+          description: Ok
+          content: {}
+  /students/{studentId}/metrics/finishedcourses:
+    get:
+      summary: Returns a StudentFinishedCourses info by student id
+      description: <p><b>Note:</b> Return a list with the student finished courses info, if the source data does not have:</p><p> <ul> <li>free_courses_count</li> <li>mandatory_courses_count</li><li>mandatory_courses_assigned</li> </ul> <p>then the api will respond with an Error Response 404 </p>
+      parameters:
+      - name: studentId
+        in: path
+        description: Returns finished courses info by student id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentFinishedCourses'
+        400:
+          description: Bad request. Student id not found in path
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        404:
+          description: Error, student with id not found or does not have mandatory
+            attributes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+                 
+  /students/{studentId}/metrics/progressplan:
+    get:
+      parameters:
+      - name: studentId
+        in: path
+        description: Returns finished courses info by student id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Ok
+          content: {}
+  /users/metrics/coursemonth:
+    get:
+      responses:
+        200:
+          description: Ok
+          content: {}
+  /users/metrics/mostpopular:
+    get:
+      responses:
+        200:
+          description: Ok
+          content: {}
+  /users/metrics/rankingcompany/{companyId}:
+    get:
+      parameters:
+      - name: companyId
+        in: path
+        description: get ranking company info by company id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Ok
+          content: {}
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: HTTP response status codes
+          example: 400
+        error_message:
+          type: string
+          description: Detailed message about error
+          example: studentId empty
+          
+    
+    StudentFinishedCourses:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          description: The user ID.
+          example: 141000
+        finished_date:
+          type: string
+          description: The last login date
+          example: "2021-04-08"
+        free_courses_count:
+          type: integer
+          description: The sum free courses counted
+          example: 4
+        mandatory_courses_count:
+          type: integer
+          description: The sum mandatory courses counted
+          example: 1
+        mandatory_courses_assigned:
+          type: integer
+          description: The amount of mandatory courses assigned
+          example: 23
+        company_id:
+          type: string
+          description: The user's company id
+          example: 790
+          
+
