@@ -1,5 +1,5 @@
 {
-  "app": "python3 app.py",
+  "app": "python app.py",
   "context": {
     "@aws-cdk/core:enableStackNameDuplicates": "true",
     "aws-cdk:enableDiffNoFail": "true",
@@ -7,15 +7,50 @@
     "@aws-cdk/aws-ecr-assets:dockerIgnoreSupport": true,
     "@aws-cdk/aws-secretsmanager:parseOwnedSecretName": true,
     "@aws-cdk/aws-kms:defaultKeyPolicies": true,
-    "rds_host_test": "moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
-    "db_user_test": "moodle_dev_admin",
-    "db_pass_test": "S2zhSJAw4ZNm",
-    "db_name_test": "bitnami_moodle",
-    "db_port_test": "3036",
-    "rds_host_prod": "moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
-    "db_user_prod": "moodle_dev_admin",
-    "db_pass_prod": "S2zhSJAw4ZNm",
-    "db_name_prod": "bitnami_moodle",
-    "db_port_prod": "3036"
+    "shared_values": {
+      "dev_values": {
+        "rds_host": "ubits-dev-3dot6-aurora-cluster.cowvbobtzldr.us-east-1.rds.amazonaws.com",
+        "db_user": "moodle_dev_admin",
+        "db_pass": "S2zhSJAw4ZNm",
+        "db_name": "bitnami_moodle",
+        "db_port": "3306",
+        "rol_arn" : "arn:aws:iam::824404647578:role/StackSharedResources-LambdaExecutionRole-FW049PTC6FKD",
+        "secret_name": "db_moodle_api",
+        "layer_arn": "arn:aws:lambda:us-east-1:824404647578:layer:shared-resources-lib:12",
+        "security_group_id": "sg-0e453c25b3154a2ee",
+        "vcp_id": "vpc-0a79ec6fe620b8e17",
+        "subnets": ["subnet-0a2901b9df6b6846f"],
+        "bucket_name": "student-metrics-dev"
+      },
+      "test_values": {
+        "rds_host": "moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
+        "db_user": "moodle_dev_admin",
+        "db_pass": "S2zhSJAw4ZNm",
+        "db_name": "bitnami_moodle",
+        "db_port": "3036",
+        "rol_arn" : "arn:aws:iam::986361039434:role/customerSuccessBoxv1-LambdaExecutionRole-OBI9J5F7YON",
+        "secret_name": "db_moodle_test",
+        "layer_arn": "arn:aws:lambda:us-east-1:986361039434:layer:csb-sam-app-dependencies:22",
+        "security_group_id": "sg-f9a5c9b2",
+        "vcp_id": "vpc-4f3dd135",
+        "subnets": ["subnet-0aea8240", "subnet-430ca91f"],
+        "bucket_name": "student-metrics-test",
+        "lambda_name": "_test"
+      },
+      "prod_values": {
+        "rds_host": "moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
+        "db_user": "moodle_dev_admin",
+        "db_pass": "S2zhSJAw4ZNm",
+        "db_name": "bitnami_moodle",
+        "db_port": "3036",
+        "rol_arn" : "arn:aws:iam::986361039434:role/customerSuccessBoxv1-LambdaExecutionRole-OBI9J5F7YON",
+        "secret_name": "db_moodle_prod",
+        "layer_arn": "arn:aws:lambda:us-east-1:986361039434:layer:csb-sam-app-dependencies:22",
+        "security_group_id": "sg-f9a5c9b2",
+        "vcp_id": "vpc-4f3dd135",
+        "subnets": ["subnet-0aea8240", "subnet-430ca91f"],
+        "bucket_name": "student-metrics"
+      }
+    }
   }
 }

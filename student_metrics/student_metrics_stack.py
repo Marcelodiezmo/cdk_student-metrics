@@ -1,153 +1,49 @@
-from aws_cdk import core
-from os import path
 from aws_cdk import (
-    aws_lambda as _lambda,
     aws_apigateway as _agw,
-    aws_s3 as _s3,
-    aws_ec2 as _ec2,
-    aws_rds as _rds,
-    aws_iam as _iam,
     core
+)
+
+from .stacks import (
+    bucket_stack,
+    lambda_stack
 )
 
 
 class StudentMetricsStack(core.Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, prod_stage=False, **kwargs) -> None:
+    def __init__(self, scope: core.Construct, construct_id: str, stage:str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # The code that defines your stack goes here
-        this_dir = path.dirname(__file__)
+        # Get variables by stage
+        shared_values = self.get_variables(self, stage)
 
-        lambda_role = _iam.Role.from_role_arn(self, 'student_role',
-                                              'arn:aws:iam::986361039434:role/customerSuccessBoxv1-LambdaExecutionRole-OBI9J5F7YON')
-        lambda_layer = _lambda.LayerVersion.from_layer_version_attributes(self, 'student_layer',
-                                                                          layer_version_arn='arn:aws:lambda:us-east-1:986361039434:layer:csb-sam-app-dependencies:13')
-        security_group = _ec2.SecurityGroup.from_security_group_id(self, "student_suc_group", "sg-f9a5c9b2")
+        # Create the Bucket
+        student_bucket = bucket_stack.bucketStack(self, 'student-metrics-' + stage, 'student-metrics-' + stage)
 
-        rds_host = ''
-        db_user = ''
-        db_pass = ''
-        db_name = ''
-        db_port = ''
-        lambda_mostpopular_name = ''
-        lambda_coursemonth_name = ''
-        lambda_rankingcompany_name = ''
-        bucket_name = ''
-        api_name = ''
+        # Create Lambdas
+        course_month_lambda = lambda_stack.lambdaStack(self, 'course_month', lambda_name='course_month', shared_values=shared_values, has_security=True)
+        student_bucket.student_bucket.grant_read(course_month_lambda.student_lambda)
 
-        if prod_stage:
-            rds_host = self.node.try_get_context("rds_host_prod")
-            db_user = self.node.try_get_context("db_user_prod")
-            db_pass = self.node.try_get_context("db_pass_prod")
-            db_name = self.node.try_get_context("db_name_prod")
-            db_port = self.node.try_get_context("db_port_prod")
-            lambda_mostpopular_name = 'student_metrics_mostpopular'
-            lambda_coursemonth_name = 'student_metrics_coursemonth'
-            lambda_rankingcompany_name = 'student_metrics_rankingcompany'
-            bucket_name = 'student-metrics'
-            api_name = 'StudentMetrics'
-        else:
-            rds_host = self.node.try_get_context("rds_host_test")
-            db_user = self.node.try_get_context("db_user_test")
-            db_pass = self.node.try_get_context("db_pass_test")
-            db_name = self.node.try_get_context("db_name_test")
-            db_port = self.node.try_get_context("db_port_test")
-            lambda_mostpopular_name = 'student_metrics_mostpopular_test'
-            lambda_coursemonth_name = 'student_metrics_coursemonth_test'
-            lambda_rankingcompany_name = 'student_metrics_rankingcompany_test'
-            bucket_name = 'student-metrics-test'
+        most_popular_lambda = lambda_stack.lambdaStack(self, 'most_popular', lambda_name='most_popular', shared_values=shared_values, has_security=True)
+        student_bucket.student_bucket.grant_read(most_popular_lambda.student_lambda)
+
+        ranking_company_lambda = lambda_stack.lambdaStack(self, 'ranking_company', lambda_name='ranking_company', shared_values=shared_values, has_security=True)
+        student_bucket.student_bucket.grant_read(ranking_company_lambda.student_lambda)
+
+        finished_courses_lambda = lambda_stack.lambdaStack(self, 'finished_courses', lambda_name='finished_courses', shared_values=shared_values, has_security=True)
+        student_bucket.student_bucket.grant_read(finished_courses_lambda.student_lambda)
+
+        progress_plan_lambda = lambda_stack.lambdaStack(self, 'progress_plan', lambda_name='progress_plan', shared_values=shared_values, has_security=True)
+        student_bucket.student_bucket.grant_read(progress_plan_lambda.student_lambda)
+
+        company_lambda = lambda_stack.lambdaStack(self, 'company', lambda_name='company', shared_values=shared_values, has_security=True)
+
+        dashboard_powerbi_lambda = lambda_stack.lambdaStack(self, 'dashboard_powerbi', lambda_name='dashboard_powerbi', shared_values=shared_values, has_security=False)
+        
+        # Create the Api
+        api_name = 'StudentMetrics'
+        if stage == 'test':
             api_name = 'StudentMetrics_test'
-
-        # Create the S3 bucket for JSON metrics files
-        student_bucket = _s3.Bucket(self, bucket_name, bucket_name=bucket_name)
-
-        dev_vpc = _ec2.Vpc.from_vpc_attributes(self, 'dev_vpc',
-                                               vpc_id="vpc-4f3dd135",
-                                               availability_zones=core.Fn.get_azs(),
-                                               private_subnet_ids=["subnet-0aea8240", "subnet-430ca91f"]
-                                               )
-
-        # Lambda for mostPopular path
-        lambda_mostpopular = _lambda.Function(
-            self,
-            lambda_mostpopular_name,
-            function_name=lambda_mostpopular_name,
-            code=_lambda.Code.from_asset(path.join(this_dir, 'lambdas/most_popular')),
-            # code=_lambda.Code.from_asset(path.join(this_dir,'lambdas/mostpopular.zip')),
-            handler='student_metrics_mostpopular.handler',
-            runtime=_lambda.Runtime.PYTHON_3_8,
-            description='Lambda to get information about the most popular course',
-            vpc=dev_vpc,
-            role=lambda_role,
-            security_groups=[security_group],
-            layers=[lambda_layer],
-            environment={
-                "rds_host": rds_host,
-                "db_user": db_user,
-                "db_pass": db_pass,
-                "db_name": db_name,
-                "db_port": db_port,
-                "bucket_name": bucket_name
-            }
-        )
-
-        lambda_mostpopular.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
-
-        # Lambda for courseMonth path
-        lambda_coursemonth = _lambda.Function(
-            self,
-            lambda_coursemonth_name,
-            function_name=lambda_coursemonth_name,
-            code=_lambda.Code.from_asset(path.join(this_dir, 'lambdas/course_month')),
-            handler='student_metrics_coursemonth.handler',
-            runtime=_lambda.Runtime.PYTHON_3_8,
-            description='Lambda to get information about the Course of the Month',
-            vpc=dev_vpc,
-            role=lambda_role,
-            security_groups=[security_group],
-            layers=[lambda_layer],
-            environment={
-                "rds_host": rds_host,
-                "db_user": db_user,
-                "db_pass": db_pass,
-                "db_name": db_name,
-                "db_port": db_port,
-                "bucket_name": bucket_name
-            }
-        )
-
-        lambda_coursemonth.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
-
-        # Lambda for Ranking Company
-        lambda_rankingcompany = _lambda.Function(
-            self,
-            lambda_rankingcompany_name,
-            function_name=lambda_rankingcompany_name,
-            code=_lambda.Code.from_asset(path.join(this_dir, 'lambdas/ranking_company')),
-            handler='student_metrics_rankingcompany.handler',
-            runtime=_lambda.Runtime.PYTHON_3_8,
-            description='Lambda to get information about the students ranking into the company',
-            vpc=dev_vpc,
-            role=lambda_role,
-            security_groups=[security_group],
-            layers=[lambda_layer],
-            environment={
-                "rds_host": rds_host,
-                "db_user": db_user,
-                "db_pass": db_pass,
-                "db_name": db_name,
-                "db_port": db_port,
-                "bucket_name": bucket_name
-            }
-        )
-
-        lambda_rankingcompany.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
-
-        # Grant the bucket to read access from lambdas
-        student_bucket.grant_read(lambda_mostpopular)
-        student_bucket.grant_read(lambda_coursemonth)
-        student_bucket.grant_read(lambda_rankingcompany)
 
         api = _agw.RestApi(
             self,
@@ -156,52 +52,49 @@ class StudentMetricsStack(core.Stack):
             deploy= False
         )
 
-        # Integrate API and mostpopular lambda
-        most_popular_integration = _agw.LambdaIntegration(lambda_mostpopular)
-
-        # Integrate API and courseMonth lambda
-        course_month_integration = _agw.LambdaIntegration(lambda_coursemonth)
-
-        # Integrate API and rankingcompany lambda
-        ranking_company_integration = _agw.LambdaIntegration(lambda_rankingcompany)
-
         # Main Resources
         user_resource = api.root.add_resource("users")
         metrics_resource = user_resource.add_resource("metrics")
+        
+        student_resource = api.root.add_resource("students")
+        student_resource_by_id = student_resource.add_resource("{studentId}")
+        students_metrics_resource_by_id = student_resource_by_id.add_resource("metrics")
 
         # Paths resources
         most_popular_resource = metrics_resource.add_resource("mostpopular")
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
+        finished_courses_by_student_id_resource = students_metrics_resource_by_id.add_resource("finishedcourses")
+        progress_plan_by_student_id_resource = students_metrics_resource_by_id.add_resource("progressplan")
+        company_resource = student_resource.add_resource("companies")
+        dashboard_powerbi_resource = student_resource.add_resource("dashboard")
 
-        # Paths Methods
-        most_popular_method = most_popular_resource.add_method(
-            "GET",
-            most_popular_integration
-            # api_key_required=True
+        # Integrate API and courseMonth lambda
+        course_month_integration = _agw.LambdaIntegration(course_month_lambda.student_lambda)
+
+        # Integrate API and mostpopular lambda
+        most_popular_integration = _agw.LambdaIntegration(most_popular_lambda.student_lambda)
+
+        # Integrate API and rankingcompany lambda
+        ranking_company_integration = _agw.LambdaIntegration(ranking_company_lambda.student_lambda)
+
+        # Integrate API and finishedcourses lambda
+        finished_courses_integration = _agw.LambdaIntegration(finished_courses_lambda.student_lambda)
+
+        # Integrate API and progressplan lambda
+        progress_plan_integration = _agw.LambdaIntegration(progress_plan_lambda.student_lambda)
+
+        # Integrate API and company lambda
+        company_integration = _agw.LambdaIntegration(
+            company_lambda.student_lambda,
+            request_parameters={
+                "integration.request.querystring.studentid": "method.request.querystring.studentid",
+                "integration.request.querystring.companyid": "method.request.querystring.companyid"
+            }
         )
-        # key = api.add_api_key("ApiKey", api_key_name="studentMetricsKey")
-        #
-        # plan = api.add_usage_plan(
-        #     "UsagePlan",
-        #     name="Easy",
-        #     api_key=key,
-        #     throttle={
-        #         "rate_limit": 100,
-        #         "burst_limit": 50
-        #     }
-        # )
-        #
-        # plan.add_api_stage(
-        #     stage=api.deployment_stage,
-        #     throttle=[{
-        #         "method": most_popular_method,
-        #         "throttle": {
-        #             "rate_limit": 100,
-        #             "burst_limit": 50
-        #         }
-        #     }]
-        # )
+
+        # Integrate API and dashboard_powerbi lambda
+        dashboard_powerbi_integration = _agw.LambdaIntegration(dashboard_powerbi_lambda.student_lambda)
 
         course_month_resource.add_method(
             "GET",
@@ -213,10 +106,76 @@ class StudentMetricsStack(core.Stack):
             ranking_company_integration
         )
 
+        finished_courses_by_student_id_resource.add_method(
+            "GET",
+            finished_courses_integration
+        )
+
+        progress_plan_by_student_id_resource.add_method(
+            "GET",
+            progress_plan_integration
+        )
+
+        most_popular_method = most_popular_resource.add_method(
+            "GET",
+            most_popular_integration
+            # api_key_required=True
+        )
+
+        company_resource.add_method(
+            "GET",
+            company_integration,
+            request_parameters={"method.request.querystring.studentid": False, "method.request.querystring.companyid": False}
+        )
+
+        dashboard_powerbi_method = dashboard_powerbi_resource.add_method(
+            "GET",
+            dashboard_powerbi_integration
+            # api_key_required=True
+        )
+
+        # # key = api.add_api_key("ApiKey", api_key_name="studentMetricsKey")
+        # #
+        # # plan = api.add_usage_plan(
+        # #     "UsagePlan",
+        # #     name="Easy",
+        # #     api_key=key,
+        # #     throttle={
+        # #         "rate_limit": 100,
+        # #         "burst_limit": 50
+        # #     }
+        # # )
+        # #
+        # # plan.add_api_stage(
+        # #     stage=api.deployment_stage,
+        # #     throttle=[{
+        # #         "method": most_popular_method,
+        # #         "throttle": {
+        # #             "rate_limit": 100,
+        # #             "burst_limit": 50
+        # #         }
+        # #     }]
+        # # )
+        
         # Deployment
-        if prod_stage:
-            deployment_prod = _agw.Deployment(self, id='deployment_prod', api=api)
-            _agw.Stage(self, id='prod_stage', deployment=deployment_prod, stage_name='services')
-        else:
+        if stage == 'test':
             deployment_test = _agw.Deployment(self, id='deployment_test', api=api)
             _agw.Stage(self, id='test_stage', deployment=deployment_test, stage_name='test')
+        elif stage == 'dev':
+            deployment_dev = _agw.Deployment(self, id='deployment_dev', api=api)
+            _agw.Stage(self, id='dev_stage', deployment=deployment_dev, stage_name='dev')
+        else:
+            deployment_prod = _agw.Deployment(self, id='deployment', api=api)
+            _agw.Stage(self, id='prod_stage', deployment=deployment_prod, stage_name='v1')
+
+
+    @staticmethod
+    def get_variables(self, stage):
+        shared_values = self.node.try_get_context('shared_values')
+
+        if stage == 'test':
+            return shared_values['test_values']
+        elif stage == 'dev':
+            return shared_values['dev_values']
+        elif stage == 'prod':
+            return shared_values['prod_values']
