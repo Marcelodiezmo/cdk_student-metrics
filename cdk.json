@@ -38,9 +38,9 @@
         "lambda_name": "_test"
       },
       "prod_values": {
-        "rds_host": "moodle-test-rds-aurora.cluster-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
-        "db_user": "moodle_dev_admin",
-        "db_pass": "S2zhSJAw4ZNm",
+        "rds_host": "moodle-production-rds-mysql-db.c9maghmfm0zw.us-east-1.rds.amazonaws.com",
+        "db_user": "ubits_api_user",
+        "db_pass": "e#EgTx>Mam]5B&kK",
         "db_name": "bitnami_moodle",
         "db_port": "3036",
         "rol_arn" : "arn:aws:iam::986361039434:role/customerSuccessBoxv1-LambdaExecutionRole-OBI9J5F7YON",
