@@ -18,11 +18,12 @@ class StudentMetricsStack(core.Stack):
         shared_values = self.get_variables(self, stage)
 
         # Create the Bucket
-        if "lambda_name" in shared_values:
-            bucketName = 'student-metrics-' + shared_values["lambda_name"]
-            student_bucket = bucket_stack.bucketStack(self, bucketName, bucketName)
+        bucket_name = "student-metrics"
+
+        if stage != "prod":
+            student_bucket = bucket_stack.bucketStack(self, f"{bucket_name}-{stage}", f"{bucket_name}-{stage}")
         else:
-            student_bucket = bucket_stack.bucketStack(self, 'student-metrics', 'student-metrics')
+            student_bucket = bucket_stack.bucketStack(self, bucket_name, bucket_name)
 
         # Create Lambdas
         course_month_lambda = lambda_stack.lambdaStack(self, 'course_month', lambda_name='course_month', shared_values=shared_values, has_security=True)
