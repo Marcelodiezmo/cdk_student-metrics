@@ -16,7 +16,7 @@ class Main:
     def get_param(event, event_type, param_name):
         return int(event[event_type][param_name])
 
-    def get_student_course_recommendations(self, offset, limit):
+    def get_student_course_recommendations(self):
         query_recommendations = f'SELECT * FROM "analytics-prod"."s3_devbits_recommended" where id_usuario = {self.get_student_id()};'
         query_courses = '''SELECT course_id,
                             fullname,
@@ -29,24 +29,18 @@ class Main:
         course_recommendations_df = self.request_athena_table(query_recommendations)
 
         if not course_recommendations_df.empty:
+            course_recommendations_df = course_recommendations_df.to_dict('records')
 
-            user_course_recommendation = course_recommendations_df.to_dict('records')
-
-            course_recommendations_df = self.paginate(user_course_recommendation[0]["recomendaciones"], offset, limit)
             student_recommendations_data = {
-                'user_id': str(user_course_recommendation[0]["id_usuario"]),
+                'student_id': str(course_recommendations_df[0]["id_usuario"]),
                 'recommended_courses': []
             }
 
-            tuple_of_curses = tuple([int(num) for num in course_recommendations_df])
+            tuple_of_curses = tuple([int(num) for num in course_recommendations_df[0]["recomendaciones"]])
 
             student_recommendations_data["recommended_courses"].append({
                 "course_info": self.request_athena_table(query_courses.format(tuple_of_curses)).astype(str).to_dict(
-                    'records'),
-                "metadata": {
-                    "total_length": len(user_course_recommendation[0]["recomendaciones"]),
-                    "size": limit
-                }
+                    'records')
             })
 
             return [student_recommendations_data]
@@ -73,11 +67,3 @@ class Main:
             kill_on_interrupt=True
         )
         return athena.execute(query).to_df()
-
-    def paginate(self, data, offset, limit):
-        offset = int(offset)
-        limit = int(limit)
-        if offset == 0:
-            return data[offset:limit]
-        else:
-            return data[offset - 1:limit]

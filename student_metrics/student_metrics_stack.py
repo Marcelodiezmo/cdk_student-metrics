@@ -85,8 +85,8 @@ class StudentMetricsStack(core.Stack):
         progress_plan_by_student_id_resource = students_metrics_resource_by_id.add_resource("progressplan")
         company_resource = student_resource.add_resource("companies")
         dashboard_powerbi_resource = student_resource.add_resource("dashboard")
-        student_course_recommendations_resource = students_metrics_resource_by_id.add_resource("ml").add_resource(
-            "recommendations").add_resource("bits")
+        student_course_recommendations_resource = students_metrics_resource_by_id.add_resource("courses").add_resource(
+            "recommendations")
 
         # Integrate API and courseMonth lambda
         course_month_integration = _agw.LambdaIntegration(course_month_lambda.student_lambda)
@@ -118,10 +118,6 @@ class StudentMetricsStack(core.Stack):
         # Integrate API and student_course_recommendations_lambda
         student_course_recommendations_integration = _agw.LambdaIntegration(
             student_course_recommendations_lambda.student_lambda,
-            request_parameters={
-                "integration.request.querystring.offset": "method.request.querystring.offset",
-                "integration.request.querystring.limit": "method.request.querystring.limit"
-            }
         )
 
         course_month_resource.add_method(
@@ -166,8 +162,6 @@ class StudentMetricsStack(core.Stack):
         student_course_recommendations_resource.add_method(
             "GET",
             student_course_recommendations_integration,
-            request_parameters={"method.request.querystring.offset": True,
-                                "method.request.querystring.limit": True}
         )
 
         # # key = api.add_api_key("ApiKey", api_key_name="studentMetricsKey")

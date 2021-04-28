@@ -25,10 +25,7 @@ def handler(event, context):
         student_id = main_functions.get_param(event, event_type='pathParameters', param_name='studentId')
         main_functions.set_student_id(student_id=student_id)
 
-        response_body = main_functions.get_student_course_recommendations(
-            offset=main_functions.get_param(event, event_type='queryStringParameters', param_name='offset'),
-            limit=main_functions.get_param(event, event_type='queryStringParameters', param_name='limit')
-        )
+        response_body = main_functions.get_student_course_recommendations()
         response = response_factory.ResponseFactory.ok_status(response_body).toJSON()
         return response
 
