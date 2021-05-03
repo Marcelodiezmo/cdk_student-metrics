@@ -11,7 +11,7 @@ from .stacks import (
 
 class StudentMetricsStack(core.Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, stage:str, **kwargs) -> None:
+    def __init__(self, scope: core.Construct, construct_id: str, stage: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # Get variables by stage
@@ -26,25 +26,37 @@ class StudentMetricsStack(core.Stack):
             student_bucket = bucket_stack.bucketStack(self, bucket_name, bucket_name)
 
         # Create Lambdas
-        course_month_lambda = lambda_stack.lambdaStack(self, 'course_month', lambda_name='course_month', shared_values=shared_values, has_security=True)
+        course_month_lambda = lambda_stack.lambdaStack(self, 'course_month', lambda_name='course_month',
+                                                       shared_values=shared_values, has_security=True)
         student_bucket.student_bucket.grant_read(course_month_lambda.student_lambda)
 
-        most_popular_lambda = lambda_stack.lambdaStack(self, 'most_popular', lambda_name='most_popular', shared_values=shared_values, has_security=True)
+        most_popular_lambda = lambda_stack.lambdaStack(self, 'most_popular', lambda_name='most_popular',
+                                                       shared_values=shared_values, has_security=True)
         student_bucket.student_bucket.grant_read(most_popular_lambda.student_lambda)
 
-        ranking_company_lambda = lambda_stack.lambdaStack(self, 'ranking_company', lambda_name='ranking_company', shared_values=shared_values, has_security=True)
+        ranking_company_lambda = lambda_stack.lambdaStack(self, 'ranking_company', lambda_name='ranking_company',
+                                                          shared_values=shared_values, has_security=True)
         student_bucket.student_bucket.grant_read(ranking_company_lambda.student_lambda)
 
-        finished_courses_lambda = lambda_stack.lambdaStack(self, 'finished_courses', lambda_name='finished_courses', shared_values=shared_values, has_security=True)
+        finished_courses_lambda = lambda_stack.lambdaStack(self, 'finished_courses', lambda_name='finished_courses',
+                                                           shared_values=shared_values, has_security=True)
         student_bucket.student_bucket.grant_read(finished_courses_lambda.student_lambda)
 
-        progress_plan_lambda = lambda_stack.lambdaStack(self, 'progress_plan', lambda_name='progress_plan', shared_values=shared_values, has_security=True)
+        progress_plan_lambda = lambda_stack.lambdaStack(self, 'progress_plan', lambda_name='progress_plan',
+                                                        shared_values=shared_values, has_security=True)
         student_bucket.student_bucket.grant_read(progress_plan_lambda.student_lambda)
 
-        company_lambda = lambda_stack.lambdaStack(self, 'company', lambda_name='company', shared_values=shared_values, has_security=True)
+        company_lambda = lambda_stack.lambdaStack(self, 'company', lambda_name='company', shared_values=shared_values,
+                                                  has_security=True)
 
-        dashboard_powerbi_lambda = lambda_stack.lambdaStack(self, 'dashboard_powerbi', lambda_name='dashboard_powerbi', shared_values=shared_values, has_security=False)
-        
+        dashboard_powerbi_lambda = lambda_stack.lambdaStack(self, 'dashboard_powerbi', lambda_name='dashboard_powerbi',
+                                                            shared_values=shared_values, has_security=False)
+
+        student_course_recommendations_lambda = lambda_stack.lambdaStack(self, 'student_course_recommendations',
+                                                                         lambda_name='course_recommendations',
+                                                                         shared_values=shared_values,
+                                                                         has_security=False)
+
         # Create the Api
         api_name = 'StudentMetrics'
         if stage == 'test':
@@ -54,13 +66,13 @@ class StudentMetricsStack(core.Stack):
             self,
             api_name,
             description='API for users metrics',
-            deploy= False
+            deploy=False
         )
 
         # Main Resources
         user_resource = api.root.add_resource("users")
         metrics_resource = user_resource.add_resource("metrics")
-        
+
         student_resource = api.root.add_resource("students")
         student_resource_by_id = student_resource.add_resource("{studentId}")
         students_metrics_resource_by_id = student_resource_by_id.add_resource("metrics")
@@ -73,6 +85,8 @@ class StudentMetricsStack(core.Stack):
         progress_plan_by_student_id_resource = students_metrics_resource_by_id.add_resource("progressplan")
         company_resource = student_resource.add_resource("companies")
         dashboard_powerbi_resource = student_resource.add_resource("dashboard")
+        student_course_recommendations_resource = students_metrics_resource_by_id.add_resource("courses").add_resource(
+            "recommendations")
 
         # Integrate API and courseMonth lambda
         course_month_integration = _agw.LambdaIntegration(course_month_lambda.student_lambda)
@@ -100,6 +114,11 @@ class StudentMetricsStack(core.Stack):
 
         # Integrate API and dashboard_powerbi lambda
         dashboard_powerbi_integration = _agw.LambdaIntegration(dashboard_powerbi_lambda.student_lambda)
+
+        # Integrate API and student_course_recommendations_lambda
+        student_course_recommendations_integration = _agw.LambdaIntegration(
+            student_course_recommendations_lambda.student_lambda,
+        )
 
         course_month_resource.add_method(
             "GET",
@@ -130,13 +149,19 @@ class StudentMetricsStack(core.Stack):
         company_resource.add_method(
             "GET",
             company_integration,
-            request_parameters={"method.request.querystring.studentid": False, "method.request.querystring.companyid": False}
+            request_parameters={"method.request.querystring.studentid": False,
+                                "method.request.querystring.companyid": False}
         )
 
         dashboard_powerbi_method = dashboard_powerbi_resource.add_method(
             "GET",
             dashboard_powerbi_integration
             # api_key_required=True
+        )
+
+        student_course_recommendations_resource.add_method(
+            "GET",
+            student_course_recommendations_integration,
         )
 
         # # key = api.add_api_key("ApiKey", api_key_name="studentMetricsKey")
@@ -161,7 +186,7 @@ class StudentMetricsStack(core.Stack):
         # #         }
         # #     }]
         # # )
-        
+
         # Deployment
         if stage == 'test':
             deployment_test = _agw.Deployment(self, id='deployment_test', api=api)
@@ -172,7 +197,6 @@ class StudentMetricsStack(core.Stack):
         else:
             deployment_prod = _agw.Deployment(self, id='deployment', api=api)
             _agw.Stage(self, id='prod_stage', deployment=deployment_prod, stage_name='v1')
-
 
     @staticmethod
     def get_variables(self, stage):
