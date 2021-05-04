@@ -56,6 +56,10 @@ class StudentMetricsStack(core.Stack):
                                                                          lambda_name='course_recommendations',
                                                                          shared_values=shared_values,
                                                                          has_security=False)
+        put_student_course_recommendations_lambda = lambda_stack.lambdaStack(self, 'put_student_course_recommendations',
+                                                                             lambda_name='put_course_recommendations',
+                                                                             shared_values=shared_values,
+                                                                             has_security=False)
 
         # Create the Api
         api_name = 'StudentMetrics'
@@ -120,6 +124,11 @@ class StudentMetricsStack(core.Stack):
             student_course_recommendations_lambda.student_lambda,
         )
 
+        # Integrate API and put_course_recommendations_lambda
+        put_student_course_recommendations_integration = _agw.LambdaIntegration(
+            put_student_course_recommendations_lambda.student_lambda,
+        )
+
         course_month_resource.add_method(
             "GET",
             course_month_integration
@@ -153,7 +162,7 @@ class StudentMetricsStack(core.Stack):
                                 "method.request.querystring.companyid": False}
         )
 
-        dashboard_powerbi_method = dashboard_powerbi_resource.add_method(
+        dashboard_powerbi_resource.add_method(
             "GET",
             dashboard_powerbi_integration
             # api_key_required=True
@@ -162,6 +171,11 @@ class StudentMetricsStack(core.Stack):
         student_course_recommendations_resource.add_method(
             "GET",
             student_course_recommendations_integration,
+        )
+
+        student_course_recommendations_resource.add_method(
+            "PUT",
+            put_student_course_recommendations_integration,
         )
 
         # # key = api.add_api_key("ApiKey", api_key_name="studentMetricsKey")
