@@ -1,5 +1,6 @@
 import boto3
 from io import StringIO
+from datetime import datetime
 import json
 import constants
 import csv
@@ -18,7 +19,7 @@ class Main:
         date_time = json_object['dateTime']
 
         si = StringIO()
-        cw = csv.writer(si)
+        cw = csv.writer(si, delimiter='|')
         cw.writerow([carousel_index, user_id, user_agent, course_id, date_time])
         print(si.getvalue().strip('\r\n'))
         return si.getvalue().strip('\r\n')
@@ -30,8 +31,10 @@ class Main:
 
         client = boto3.resource('s3')
         bucket = constants.bucket
+        now = datetime.now()
+        filename = now.strftime("%d%m%Y%H%M%S%f")
 
-        response = client.Object(bucket, constants.path + '/test.csv').put(Body=body)
+        response = client.Object(bucket, constants.path + f"/{filename}.csv").put(Body=body)
         print(response["ResponseMetadata"]["HTTPStatusCode"])
 
         return response["ResponseMetadata"]["HTTPStatusCode"]
