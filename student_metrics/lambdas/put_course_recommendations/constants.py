@@ -1,3 +1,3 @@
-json_keys = ["carouselIndex", "userId", "userAgent", "courseId", "dateTime"]
+json_keys = ["carouselIndex", "studentId", "studentAgent", "courseId", "dateTime"]
 bucket = "analytics-ubits-production"
 path = "ABTesting"

@@ -13,14 +13,14 @@ class Main:
         json_object = json.loads(body)
 
         carousel_index = json_object['carouselIndex']
-        user_id = json_object['userId']
-        user_agent = json_object['userAgent']
+        student_id = json_object['studentId']
+        student_agent = json_object['studentAgent']
         course_id = json_object['courseId']
         date_time = json_object['dateTime']
 
         si = StringIO()
         cw = csv.writer(si, delimiter='|')
-        cw.writerow([carousel_index, user_id, user_agent, course_id, date_time])
+        cw.writerow([carousel_index, student_id, student_agent, course_id, date_time])
         print(si.getvalue().strip('\r\n'))
         return si.getvalue().strip('\r\n')
 
