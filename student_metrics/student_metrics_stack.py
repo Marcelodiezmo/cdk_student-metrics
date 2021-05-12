@@ -174,7 +174,7 @@ class StudentMetricsStack(core.Stack):
         )
 
         student_course_recommendations_resource.add_method(
-            "PUT",
+            "POST",
             put_student_course_recommendations_integration,
         )
 
