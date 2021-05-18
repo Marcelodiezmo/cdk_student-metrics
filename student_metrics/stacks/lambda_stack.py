@@ -69,7 +69,7 @@ class lambdaStack(core.Construct):
                 "bucket_name": bucket_name,
                 "secret_name": secret_name
             },
-            timeout=core.Duration.seconds(16)
+            timeout=core.Duration.seconds(30)
         )
 
         student_lambda.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))

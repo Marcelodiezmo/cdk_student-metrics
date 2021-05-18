@@ -17,31 +17,39 @@ class Main:
         return int(event[event_type][param_name])
 
     def get_student_course_recommendations(self):
-        query_recommendations = f'SELECT * FROM "analytics-prod"."s3_devbits_recommended" where id_usuario = {self.get_student_id()};'
-        query_courses = '''SELECT course_id,
+        user_id = self.get_student_id()
+        query_recommendations = f'SELECT * FROM "analytics-prod"."s3_devbits_recommended" where id_usuario = {user_id};'
+
+        course_recommendations_df = self.request_athena_table(query_recommendations)
+
+        print("La info de Athena es ")
+        print(course_recommendations_df.to_dict('records'))
+
+        if not course_recommendations_df.empty:
+            course_recommendations_df = course_recommendations_df.to_dict('records')
+
+            response_course = []
+            for course in course_recommendations_df[0]["recomendaciones"]:
+                query_course = f'''SELECT course_id,
                             fullname,
                             course_summary,
                             cant_modules,
                             course_duration_in_minutes
                 FROM "analytics-prod"."s3_devnew_kambits_parquet"
-                WHERE course_id in {0};'''
+                WHERE course_id = {course};'''
 
-        course_recommendations_df = self.request_athena_table(query_recommendations)
+                response_course.append(self.request_athena_table(query_course).astype(str).to_dict('records'))
 
-        if not course_recommendations_df.empty:
-            course_recommendations_df = course_recommendations_df.to_dict('records')
+
+            finalResults = []
+            for i in range(0,len(response_course)): finalResults.append(response_course[i][0])
 
             student_recommendations_data = {
                 'student_id': str(course_recommendations_df[0]["id_usuario"]),
-                'recommended_courses': []
+                'recommended_courses': [
+                    {"course_info": finalResults}
+                ]
             }
-
-            tuple_of_curses = tuple([int(num) for num in course_recommendations_df[0]["recomendaciones"]])
-
-            student_recommendations_data["recommended_courses"].append({
-                "course_info": self.request_athena_table(query_courses.format(tuple_of_curses)).astype(str).to_dict(
-                    'records')
-            })
 
             return [student_recommendations_data]
         else:
@@ -53,7 +61,7 @@ class Main:
             # AWS region, read from ~/.aws/config if not specified.
             region=None,
             # Athena (AWS Glue) database. Can be overridden in queries.
-            database="ml_test_athena",
+            database="analytics-prod",
             # Athena workgroup. Will use default workgroup if omitted.
             workgroup=None,
             # Athena output location, will use workgroup default location if omitted.
