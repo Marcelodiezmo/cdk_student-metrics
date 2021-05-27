@@ -1,4 +1,3 @@
-import pallas
 import boto3
 import main
 import response_factory
