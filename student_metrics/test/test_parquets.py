@@ -27,7 +27,8 @@ def get_student_course_recommendations():
             'fullname': item['fullname'][i],
             'course_summary': item['course_summary'][i],
             'cant_modules': int(float(item['numero_secciones'][i])),
-            'course_duration_in_minutes': int(float(item['course_duration_in_minutes'][i]))
+            'course_duration_in_minutes': int(float(item['course_duration_in_minutes'][i])),
+            'course_progress': int(float(item['Porcentaje_de_Avance_Bit'][i]))
         })
 
     request_response = [{
