@@ -75,12 +75,20 @@ def queryData(course):
 
         cursor.execute(queryModules)
         result = cursor.fetchall()
-        course.courseModules = result[0][0]
+
+        if result:
+            course.courseModules = result[0][0]
+        else:
+            course.courseModules = 0
 
         if course.courseType == 'Bit':
             cursor.execute(queryIframe)
             result = cursor.fetchall()
-            course.courseIframe = result[0][0]
+
+            if result:
+                course.courseIframe = result[0][0]
+            else:
+                course.courseIframe = ''
         else:
             course.courseIframe = ''
 
