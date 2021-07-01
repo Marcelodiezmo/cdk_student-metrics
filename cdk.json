@@ -9,7 +9,7 @@
     "@aws-cdk/aws-kms:defaultKeyPolicies": true,
     "shared_values": {
       "dev_values": {
-        "rds_host": "ubits-dev-3dot6-aurora-cluster.cowvbobtzldr.us-east-1.rds.amazonaws.com",
+        "rds_host": "ubits-dev-3dot6-cognito-aurora-instance-cluster.cluster-cowvbobtzldr.us-east-1.rds.amazonaws.com",
         "db_user": "moodle_dev_admin",
         "db_pass": "S2zhSJAw4ZNm",
         "db_name": "bitnami_moodle",
