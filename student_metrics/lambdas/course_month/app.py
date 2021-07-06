@@ -57,7 +57,7 @@ def queryData(course):
         cursor = conn.cursor()
         queryName = "select fullname, summary from mdl_course where id = " + str(course.courseId)
         queryDuration = "select course_duration_in_minutes from mdl_u_course_additional_info where id = " + str(course.courseId)
-        queryModules = "select count(*) as modules from mdl_course_modules where course = " + str(course.courseId) + " and deletioninprogress = 0 and visible = 1"
+        queryModules = "select count(*) as modules from mdl_course_sections where course =  " + str(course.courseId) + " and (name not like '%ierre%' and name not like '%Introduc%') and (name like '%Bit%' or name like '%bit%') "
         queryIframe = "select content from mdl_page where course = " + str(course.courseId) + " and name like '%Bienvenida%'"
 
         cursor.execute(queryName)
@@ -67,16 +67,28 @@ def queryData(course):
 
         cursor.execute(queryDuration)
         result = cursor.fetchall()
-        course.courseDuration = result[0][0]
+
+        if result:
+            course.courseDuration = result[0][0]
+        else:
+            course.courseDuration = 0
 
         cursor.execute(queryModules)
         result = cursor.fetchall()
-        course.courseModules = result[0][0]
+
+        if result:
+            course.courseModules = result[0][0]
+        else:
+            course.courseModules = 0
 
         if course.courseType == 'Bit':
             cursor.execute(queryIframe)
             result = cursor.fetchall()
-            course.courseIframe = result[0][0]
+
+            if result:
+                course.courseIframe = result[0][0]
+            else:
+                course.courseIframe = ''
         else:
             course.courseIframe = ''
 
