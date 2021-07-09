@@ -1,134 +1,76 @@
 import json
 import botocore
 import boto3
-import pymysql
 import os
+import dao as dao
+import constants
+
+from response_factory import ResponseFactory, ResponseError
+from student_values import StudentValues
 
 s3 = boto3.client('s3')
-
-
-class DataResponse:
-    studentId = ''
-    studentName = ''
-
-
-class Response:
-    code = 200
-    error_message = ''
-    data = DataResponse()
 
 
 def exception_handler(response):
     if response.error_message == None or response.error_message == '':
         response.error_message = 'General Error'
 
-    responseBody = {
-        "code": response.code,
-        "error_message": response.error_message,
-    }
+    response = ResponseFactory.error_client(response.code, response).toJSON()
 
-    return {
-        'statusCode': response.code,
-        'headers': {
-            'Content-Type': 'application/json'
-        },
-        'body': json.dumps(responseBody)
-    }
+    print(response)
+    return response
 
 
-def queryData(data):
-    rds_host = os.environ['rds_host']
-    db_user = os.environ['db_user']
-    db_pass = os.environ['db_pass']
-    db_name = os.environ['db_name']
-    db_port = int(os.environ['db_port'])
-
-    response = Response()
-
-    # RDS connection
+def query_data(student_id):
     try:
-        conn = pymysql.connect(host=rds_host, user=db_user, passwd=db_pass, db=db_name, port=db_port,
-                               connect_timeout=25)
-
-        cursor = conn.cursor()
-        queryName = "select concat_ws(' ', firstname, lastname) as name from mdl_user where id = " + str(data.studentId)
-
-        cursor.execute(queryName)
-        result = cursor.fetchall()
-
-        if result:
-            data.studentName = str(result[0][0])
-        else:
-            data.studentName = ''
-
-        conn.close()
-        response.data = data
-        return response
-
-    except pymysql.Error as e:
-        response.code = e.args[0]
-        response.error_message = e.args[1]
-        return response
+        return dao.get_student_name(student_id)
+    except Exception as e:
+        response = ResponseError(404, e.args[0])
+        print('ERROR: ', e.args[0])
+        return exception_handler(response)
 
 
 def handler(event, context):
     bucket = os.environ['bucket_name']
-    key = 'ranking-company.json'
+    key = constants.KEY
 
-    companyId = int(event['pathParameters']['companyId'])
-    dataToSearch = DataResponse()
-    response = Response()
-    dataJson = []
+    dataToReturn = []
+    student_values = StudentValues()
+    company_id = int(event['pathParameters']['companyId'])
 
     try:
         responseS3 = s3.get_object(Bucket=bucket, Key=key)
         content = responseS3['Body']
         jsonObject = json.loads(content.read())
 
-        dataJson = list(filter(lambda x:x["company_id"] == companyId, jsonObject))
+        dataJson = list(filter(lambda x: x["company_id"] == company_id, jsonObject))
 
-    except botocore.exceptions.ClientError as error:
-        response.error_message = str(error.response['Error']['Message'])
-        response.code = str(error.response['ResponseMetadata']['HTTPStatusCode'])
-        return exception_handler(response)
-    except Exception:
-        response.code = 404
-        return exception_handler(response)
-
-    # Loop for search data in DB
-    dataBody = {}
-    dataToReturn = []
-    try:
         for record in dataJson:
-            dataToSearch.studentId = record['user_id']
+            student_values.studentId = record['user_id']
+            student_values.studentName = query_data(student_values.studentId)
 
-            # search data
-            responseQuery = queryData(dataToSearch)
-            response.code = responseQuery.code
-            response.error_message = responseQuery.error_message
-
-            if response.code == 200 and responseQuery.data.studentName != '':
+            if student_values.studentName != '':
                 responseBody = {
-                    "student_id": responseQuery.data.studentId,
-                    "student_name": responseQuery.data.studentName
+                    "student_id": student_values.studentId,
+                    "student_name": student_values.studentName
                 }
-
                 dataToReturn.append(responseBody)
             else:
-                response.error_message = "Estudiante no encontrado"
-                raise Exception
+                raise Exception('Estudiante no encontrado')
 
         dataBody = {
             "data": dataToReturn
         }
 
-        return {
-            'statusCode': response.code,
-            'headers': {
-                'Content-Type': 'application/json'
-            },
-            'body': json.dumps(dataBody)
-        }
-    except:
-        response.code = 404
+        response = ResponseFactory.ok_status(dataBody)
+        return response.toJSON()
+
+    except botocore.exceptions.ClientError as error:
+        error_message = str(error.response['Error']['Message'])
+        code = str(error.response['ResponseMetadata']['HTTPStatusCode'])
+        response = ResponseError(code, error_message)
+        return exception_handler(response)
+    except Exception as e:
+        response = ResponseError(404, e.args[0])
+        print('ERROR: ', e.args[0])
         return exception_handler(response)

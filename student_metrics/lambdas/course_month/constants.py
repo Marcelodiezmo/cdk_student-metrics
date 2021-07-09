@@ -1,0 +1,1 @@
+KEY = 'courseMonth.json'

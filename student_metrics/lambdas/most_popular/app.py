@@ -1,132 +1,72 @@
 import json
 import botocore
 import boto3
-import pymysql
 import os
+import dao as dao
+import constants
+
+from response_factory import ResponseFactory, ResponseError
+from course_values import CourseValues
 
 s3 = boto3.client('s3')
-
-
-class DataResponse:
-    courseId = ''
-    courseName = ''
-    courseFinish = ''
-
-
-class Response:
-    code = 200
-    error_message = ''
-    data = DataResponse()
 
 
 def exception_handler(response):
     if response.error_message == None or response.error_message == '':
         response.error_message = 'General Error'
 
-    responseBody = {
-        "code": response.code,
-        "error_message": response.error_message,
-    }
+    response = ResponseFactory.error_client(response.code, response).toJSON()
 
-    return {
-        'statusCode': response.code,
-        'headers': {
-            'Content-Type': 'application/json'
-        },
-        'body': json.dumps(responseBody)
-    }
+    print(response)
+    return response
 
-def queryData(data):
-    rds_host = os.environ['rds_host']
-    db_user = os.environ['db_user']
-    db_pass = os.environ['db_pass']
-    db_name = os.environ['db_name']
-    db_port = int(os.environ['db_port'])
-
-    response = Response()
-
-    # RDS connection
+def query_data(course_id):
     try:
-        conn = pymysql.connect(host=rds_host, user=db_user, passwd=db_pass, db=db_name, port=db_port,
-                               connect_timeout=25)
-
-        cursor = conn.cursor()
-        queryName = "select fullname from mdl_course where id = " + str(data.courseId)
-
-        cursor.execute(queryName)
-        result = cursor.fetchall()
-        data.courseName = str(result[0][0])
-
-        conn.close()
-        response.data = data
-        return response
-
-    except pymysql.Error as e:
-        response.code = e.args[0]
-        response.error_message = e.args[1]
-        return response
+        return dao.get_course_name(course_id)
+    except Exception as e:
+        response = ResponseError(404, e.args[0])
+        print('ERROR: ', e.args[0])
+        return exception_handler(response)
 
 
 def handler(event, context):
     bucket = os.environ['bucket_name']
-    key = 'most-popular-bits.json'
+    key = constants.KEY
 
-    dataToSearch = DataResponse()
-    response = Response()
-    responseQuery = {}
-    responseBody = {}
-    jsonObject = []
-
+    dataToReturn = []
+    course_values = CourseValues()
     try:
         responseS3 = s3.get_object(Bucket=bucket, Key=key)
         content = responseS3['Body']
         jsonObject = json.loads(content.read())
 
-    except botocore.exceptions.ClientError as error:
-        response.error_message = str(error.response['Error']['Message'])
-        response.code = str(error.response['ResponseMetadata']['HTTPStatusCode'])
-        return exception_handler(response)
-    except Exception:
-        response.code = 404
-        return exception_handler(response)
-
-    # Loop for search data in BD
-    dataBody = {}
-    dataToReturn = []
-    try:
         for record in jsonObject:
-            dataToSearch.courseId = record['course_id']
-            dataToSearch.courseFinish = record['finished_count']
+            course_values.courseId = record['course_id']
+            course_values.courseFinish = record['finished_count']
 
-            # search data
-            responseQuery = queryData(dataToSearch)
-            response.code = responseQuery.code
-            response.error_message = responseQuery.error_message
+            course_values.courseName = query_data(course_values.courseId)
 
-            if response.code == 200:
-                responseBody = {
-                    "course_id": responseQuery.data.courseId,
-                    "name": responseQuery.data.courseName,
-                    "finished_count": responseQuery.data.courseFinish
-                }
+            responseBody = {
+                "course_id": course_values.courseId,
+                "name": course_values.courseName,
+                "finished_count": course_values.courseFinish
+            }
 
-                dataToReturn.append(responseBody)
-
-            else:
-                raise Exception
+            dataToReturn.append(responseBody)
 
         dataBody = {
             "data": dataToReturn
         }
 
-        # print(dataToReturn)
-        return {
-            'statusCode': response.code,
-            'headers': {
-                'Content-Type': 'application/json'
-            },
-            'body': json.dumps(dataBody)
-        }
-    except Exception:
-        response.code = 404
+        response = ResponseFactory.ok_status(dataBody)
+        return response.toJSON()
+
+    except botocore.exceptions.ClientError as error:
+        error_message = str(error.response['Error']['Message'])
+        code = str(error.response['ResponseMetadata']['HTTPStatusCode'])
+        response = ResponseError(code, error_message)
+        return exception_handler(response)
+    except Exception as e:
+        response = ResponseError(404, e.args[0])
+        print('ERROR: ', e.args[0])
         return exception_handler(response)
