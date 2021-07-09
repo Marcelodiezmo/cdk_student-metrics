@@ -1,5 +1,6 @@
 import pymysql
 import os
+import base64
 from course import Course
 
 
@@ -19,8 +20,17 @@ def get_course_data(course_id):
 
         cursor = conn.cursor()
         queryName = "select fullname, summary from mdl_course where id = " + str(course.courseId)
-        queryDuration = "select course_duration_in_minutes from mdl_u_course_additional_info where id = " + str(
-            course.courseId)
+
+        queryDuration = f"""
+                        SELECT mbi.configdata
+                        FROM mdl_course mc
+                            LEFT JOIN mdl_context mc2 ON mc2.instanceid = mc.id AND contextlevel = 50
+                            LEFT JOIN mdl_block_instances mbi ON mbi.parentcontextid = mc2.id
+                        WHERE mc.category != 0
+                        And mbi.blockname like '%_course_features'
+                        And mbi.configdata != ''
+                        And mc2.instanceid = {str(course.courseId)}"""
+
         queryModules = "select count(*) as modules from mdl_course_sections where course =  " + str(
             course.courseId) + " and (name not like '%ierre%' and name not like '%Introduc%') and (name like '%Bit%' or name like '%bit%') "
         queryIframe = "select content from mdl_page where course = " + str(
@@ -35,9 +45,11 @@ def get_course_data(course_id):
         result = cursor.fetchall()
 
         if result:
-            course.courseDuration = result[0][0]
+            duration_encode = result[0][0]
+            duration_decode = base64.b64decode(duration_encode)
+            course.courseDuration = duration_decode
         else:
-            course.courseDuration = 0
+            course.courseDuration = "0"
 
         cursor.execute(queryModules)
         result = cursor.fetchall()
