@@ -23,9 +23,9 @@ def exception_handler(response):
     return response
 
 
-def query_data(course_id):
+def query_data(course):
     try:
-        return dao.get_course_data(course_id)
+        return dao.get_course_data(course)
     except Exception as e:
         response = ResponseError(404, e.args[0])
         print('ERROR: ', e.args[0])
@@ -41,9 +41,13 @@ def handler(event, context):
     bucket = os.environ['bucket_name']
     key = constants.KEY
 
+    print(bucket)
+    print(key)
+
     course = Course()
     try:
         responseS3 = s3.get_object(Bucket=bucket, Key=key)
+
         content = responseS3['Body']
         jsonObject = json.loads(content.read())
 
@@ -51,7 +55,13 @@ def handler(event, context):
             course.courseId = record['course_id']
             course.courseType = record['Contenido']
 
-        course = query_data(course.courseId)
+        print("El tipo antes de consulta es")
+        print(course.courseType)
+
+        course = query_data(course)
+
+        print("El tipo despues de consulta es")
+        print(course.courseType)
 
         # unserialize PHP for course_duration
         if course.courseDuration != "0":
@@ -67,6 +77,7 @@ def handler(event, context):
             "iframe": course.courseIframe,
             "contenido": course.courseType
         }
+
 
         response = ResponseFactory.ok_status(responseBody)
         return response.toJSON()

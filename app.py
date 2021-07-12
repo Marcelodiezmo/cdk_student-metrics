@@ -18,4 +18,6 @@ StudentMetricsStack(app, "student-metrics-dev", env=core.Environment(
     account='824404647578',
     region='us-east-1'), stage='dev')
 
+StudentMetricsStack(app, "student-metrics-main", stage='main')
+
 app.synth()

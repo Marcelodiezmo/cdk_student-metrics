@@ -1,13 +1,9 @@
 import pymysql
 import os
 import base64
-from course import Course
 
 
-def get_course_data(course_id):
-    course = Course()
-    course.courseId = course_id
-
+def get_course_data(course):
     rds_host = os.environ['rds_host']
     db_user = os.environ['db_user']
     db_pass = os.environ['db_pass']
