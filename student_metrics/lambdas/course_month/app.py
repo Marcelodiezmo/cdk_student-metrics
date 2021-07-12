@@ -7,6 +7,8 @@ import constants
 
 from response_factory import ResponseFactory, ResponseError
 from course import Course
+from phpserialize import *
+
 
 s3 = boto3.client('s3')
 
@@ -30,6 +32,11 @@ def query_data(course_id):
         return exception_handler(response)
 
 
+def unserialize_php(serialized_obj):
+    data = loads(serialized_obj, decode_strings=True, object_hook=phpobject)
+    return data
+
+
 def handler(event, context):
     bucket = os.environ['bucket_name']
     key = constants.KEY
@@ -45,6 +52,11 @@ def handler(event, context):
             course.courseType = record['Contenido']
 
         course = query_data(course.courseId)
+
+        # unserialize PHP for course_duration
+        if course.courseDuration != "0":
+            course_info = unserialize_php(course.courseDuration)
+            course.courseDuration = course_info.duration
 
         responseBody = {
             "course_id": course.courseId,
