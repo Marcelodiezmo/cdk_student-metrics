@@ -37,6 +37,20 @@ def unserialize_php(serialized_obj):
     return data
 
 
+def format_iframe(original_iframe):
+    index_iframe_1 = original_iframe.index("<iframe")
+    index_iframe_2 = original_iframe.index("</iframe>")
+
+    iframe = original_iframe[index_iframe_1:index_iframe_2]
+
+    index_http_1 = iframe.index("https://")
+    index_http_2 = iframe.index("?")
+
+    final_iframe = iframe[index_http_1:index_http_2]
+
+    return final_iframe
+
+
 def handler(event, context):
     bucket = os.environ['bucket_name']
     key = constants.KEY
@@ -67,6 +81,9 @@ def handler(event, context):
         if course.courseDuration != "0":
             course_info = unserialize_php(course.courseDuration)
             course.courseDuration = course_info.duration
+
+        if course.courseIframe != "":
+            course.courseIframe = format_iframe(course.courseIframe)
 
         responseBody = {
             "course_id": course.courseId,
