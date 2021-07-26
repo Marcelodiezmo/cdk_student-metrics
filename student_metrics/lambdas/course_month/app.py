@@ -7,6 +7,8 @@ import constants
 
 from response_factory import ResponseFactory, ResponseError
 from course import Course
+from phpserialize import *
+
 
 s3 = boto3.client('s3')
 
@@ -21,22 +23,31 @@ def exception_handler(response):
     return response
 
 
-def query_data(course_id):
+def query_data(course):
     try:
-        return dao.get_course_data(course_id)
+        return dao.get_course_data(course)
     except Exception as e:
         response = ResponseError(404, e.args[0])
         print('ERROR: ', e.args[0])
         return exception_handler(response)
 
 
+def unserialize_php(serialized_obj):
+    data = loads(serialized_obj, decode_strings=True, object_hook=phpobject)
+    return data
+
+
 def handler(event, context):
     bucket = os.environ['bucket_name']
     key = constants.KEY
 
+    print(bucket)
+    print(key)
+
     course = Course()
     try:
         responseS3 = s3.get_object(Bucket=bucket, Key=key)
+
         content = responseS3['Body']
         jsonObject = json.loads(content.read())
 
@@ -44,7 +55,18 @@ def handler(event, context):
             course.courseId = record['course_id']
             course.courseType = record['Contenido']
 
-        course = query_data(course.courseId)
+        print("El tipo antes de consulta es")
+        print(course.courseType)
+
+        course = query_data(course)
+
+        print("El tipo despues de consulta es")
+        print(course.courseType)
+
+        # unserialize PHP for course_duration
+        if course.courseDuration != "0":
+            course_info = unserialize_php(course.courseDuration)
+            course.courseDuration = course_info.duration
 
         responseBody = {
             "course_id": course.courseId,
@@ -55,6 +77,7 @@ def handler(event, context):
             "iframe": course.courseIframe,
             "contenido": course.courseType
         }
+
 
         response = ResponseFactory.ok_status(responseBody)
         return response.toJSON()

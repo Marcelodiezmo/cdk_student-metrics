@@ -9,14 +9,14 @@
     "@aws-cdk/aws-kms:defaultKeyPolicies": true,
     "shared_values": {
       "dev_values": {
-        "rds_host": "ubits-dev-3dot6-cognito-aurora-instance-cluster.cluster-cowvbobtzldr.us-east-1.rds.amazonaws.com",
-        "db_user": "moodle_dev_admin",
-        "db_pass": "S2zhSJAw4ZNm",
-        "db_name": "bitnami_moodle",
+        "rds_host": "ubits-dev-3dot10-cognito-aurora-cluster.cluster-cowvbobtzldr.us-east-1.rds.amazonaws.com",
+        "db_user": "ubits_dev_admin_user",
+        "db_pass": "QfXI5ox4NqoGAyQpBWW7",
+        "db_name": "moodle",
         "db_port": "3306",
         "rol_arn" : "arn:aws:iam::824404647578:role/StackSharedResources-LambdaExecutionRole-FW049PTC6FKD",
         "secret_name": "db_moodle_api",
-        "layer_arn": "arn:aws:lambda:us-east-1:824404647578:layer:shared-resources-lib:12",
+        "layer_arn": "arn:aws:lambda:us-east-1:824404647578:layer:shared-resources-lib:21",
         "security_group_id": "sg-0e453c25b3154a2ee",
         "vcp_id": "vpc-0a79ec6fe620b8e17",
         "subnets": ["subnet-0a2901b9df6b6846f"],
@@ -45,11 +45,26 @@
         "db_port": "3036",
         "rol_arn" : "arn:aws:iam::986361039434:role/customerSuccessBoxv1-LambdaExecutionRole-OBI9J5F7YON",
         "secret_name": "db_moodle_prod",
-        "layer_arn": "arn:aws:lambda:us-east-1:986361039434:layer:csb-sam-app-dependencies:22",
+        "layer_arn": "arn:aws:lambda:us-east-1:986361039434:layer:csb-sam-app-dependencies:24",
         "security_group_id": "sg-f9a5c9b2",
         "vcp_id": "vpc-4f3dd135",
         "subnets": ["subnet-0aea8240", "subnet-430ca91f"],
         "bucket_name": "student-metrics"
+      },
+      "main_values": {
+        "rds_host": "ubits-prod-3dot10-main-aurora-cluster.cluster-ro-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
+        "db_user": "ubits_api_user",
+        "db_pass": "e#EgTx>Mam]5B&kK",
+        "db_name": "bitnami_moodle",
+        "db_port": "3036",
+        "rol_arn" : "arn:aws:iam::986361039434:role/customerSuccessBoxv1-LambdaExecutionRole-OBI9J5F7YON",
+        "secret_name": "",
+        "layer_arn": "arn:aws:lambda:us-east-1:986361039434:layer:csb-sam-app-dependencies:24",
+        "security_group_id": "sg-0d86aec65fca2c7cf",
+        "vcp_id": "vpc-00b37952258c43972",
+        "subnets": ["subnet-040bd058f70d2ca42", "subnet-0c0c6f22eddeb11c7"],
+        "bucket_name": "student-metrics",
+        "lambda_name": "_main"
       }
     }
   }

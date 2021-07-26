@@ -20,10 +20,10 @@ class StudentMetricsStack(core.Stack):
         # Create the Bucket
         bucket_name = "student-metrics"
 
-        if stage != "prod":
-            student_bucket = bucket_stack.bucketStack(self, f"{bucket_name}-{stage}", f"{bucket_name}-{stage}")
+        if stage != "prod" and stage != "main":
+            student_bucket = bucket_stack.bucketStack(self, f"{bucket_name}-{stage}", f"{bucket_name}-{stage}", stage=stage)
         else:
-            student_bucket = bucket_stack.bucketStack(self, bucket_name, bucket_name)
+            student_bucket = bucket_stack.bucketStack(self, bucket_name, bucket_name, stage=stage)
 
         # Create Lambdas
         course_month_lambda = lambda_stack.lambdaStack(self, 'course_month', lambda_name='course_month',
@@ -65,6 +65,8 @@ class StudentMetricsStack(core.Stack):
         api_name = 'StudentMetrics'
         if stage == 'test':
             api_name = 'StudentMetrics_test'
+        elif stage == 'main':
+            api_name = 'StudentMetrics_main'
 
         api = _agw.RestApi(
             self,
@@ -208,6 +210,9 @@ class StudentMetricsStack(core.Stack):
         elif stage == 'dev':
             deployment_dev = _agw.Deployment(self, id='deployment_dev', api=api)
             _agw.Stage(self, id='dev_stage', deployment=deployment_dev, stage_name='dev')
+        if stage == 'main':
+            deployment_main = _agw.Deployment(self, id='deployment_main', api=api)
+            _agw.Stage(self, id='main_stage', deployment=deployment_main, stage_name='main')
         else:
             deployment_prod = _agw.Deployment(self, id='deployment', api=api)
             _agw.Stage(self, id='prod_stage', deployment=deployment_prod, stage_name='v1')
@@ -222,3 +227,5 @@ class StudentMetricsStack(core.Stack):
             return shared_values['dev_values']
         elif stage == 'prod':
             return shared_values['prod_values']
+        elif stage == 'main':
+            return shared_values['main_values']
