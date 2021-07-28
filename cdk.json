@@ -9,10 +9,10 @@
     "@aws-cdk/aws-kms:defaultKeyPolicies": true,
     "shared_values": {
       "dev_values": {
-        "rds_host": "ubits-dev-3dot10-cognito-aurora-cluster.cluster-cowvbobtzldr.us-east-1.rds.amazonaws.com",
-        "db_user": "ubits_dev_admin_user",
-        "db_pass": "QfXI5ox4NqoGAyQpBWW7",
-        "db_name": "moodle",
+        "rds_host": "ubits-dev-3dot10-main-cognito-aurora-cluster.cluster-cowvbobtzldr.us-east-1.rds.amazonaws.com",
+        "db_user": "ubits_prod_moodle",
+        "db_pass": "uymVSWlRyXlL",
+        "db_name": "bitnami_moodle",
         "db_port": "3306",
         "rol_arn" : "arn:aws:iam::824404647578:role/StackSharedResources-LambdaExecutionRole-FW049PTC6FKD",
         "secret_name": "db_moodle_api",
