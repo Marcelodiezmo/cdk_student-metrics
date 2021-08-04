@@ -14,7 +14,12 @@ class Response(object):
 
     def __init__(self, status_code: int):
         self.statusCode = status_code
-        self.headers = {'Content-Type': 'application/json'}
+        self.headers = {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+        }
 
     def toJSON(self):
         return {
