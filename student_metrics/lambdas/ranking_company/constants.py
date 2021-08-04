@@ -1,0 +1,1 @@
+KEY = 'ranking-company.json'
