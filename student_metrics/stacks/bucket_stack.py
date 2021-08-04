@@ -14,10 +14,15 @@ class bucketStack(core.Construct):
 
         this_dir = path.dirname(__file__)
 
-        if stage == "main":
+        """if stage == "main":
             # For the main environment get the actual bucket ARN
             student_bucket = _s3.Bucket.from_bucket_arn(self, "BucketByArn", "arn:aws:s3:::student-metrics")
         else:
+            student_bucket = _s3.Bucket(self, bucket_name, bucket_name=bucket_name)"""
+
+        student_bucket = _s3.Bucket.from_bucket_arn(self, "BucketByArn", "arn:aws:s3:::student-metrics")
+
+        if student_bucket is None:
             student_bucket = _s3.Bucket(self, bucket_name, bucket_name=bucket_name)
 
             _deploy.BucketDeployment(

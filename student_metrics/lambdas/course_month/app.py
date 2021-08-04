@@ -69,13 +69,7 @@ def handler(event, context):
             course.courseId = record['course_id']
             course.courseType = record['Contenido']
 
-        print("El tipo antes de consulta es")
-        print(course.courseType)
-
         course = query_data(course)
-
-        print("El tipo despues de consulta es")
-        print(course.courseType)
 
         # unserialize PHP for course_duration
         if course.courseDuration != "0":
