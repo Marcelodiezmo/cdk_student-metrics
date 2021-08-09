@@ -69,6 +69,35 @@
         "bucket_name": "student-metrics",
         "lambda_name": "_main"
       }
+    },
+    "powerBI_values": {
+      "dev_values": {
+        "WORKSPACE_ID": "0098d86d-0f98-4182-8ae2-c8d0fb098e6f",
+        "REPORT_ID": "627edcae-3f5a-4066-a493-b7a89f3660f6",
+        "TENANT_ID":  "a0773bda-3c38-41c9-9529-13b2db7a3826",
+        "CLIENT_ID": "039fa204-ddda-4621-978c-5c5c6fee4dd7",
+        "CLIENT_SECRET":  "bYX1r~vY1tpNk_nhI3pvG7~i09it3.~iYn",
+        "POWER_BI_USER": "tech@ubits.co",
+        "POWER_BI_PASS":  "2j7W9GCbSyU7io7DI4"
+      },
+      "prod_values": {
+        "WORKSPACE_ID": "0098d86d-0f98-4182-8ae2-c8d0fb098e6f",
+        "REPORT_ID": "627edcae-3f5a-4066-a493-b7a89f3660f6",
+        "TENANT_ID":  "a0773bda-3c38-41c9-9529-13b2db7a3826",
+        "CLIENT_ID": "039fa204-ddda-4621-978c-5c5c6fee4dd7",
+        "CLIENT_SECRET":  "bYX1r~vY1tpNk_nhI3pvG7~i09it3.~iYn",
+        "POWER_BI_USER": "tech@ubits.co",
+        "POWER_BI_PASS":  "2j7W9GCbSyU7io7DI4"
+      },
+      "main_values": {
+        "WORKSPACE_ID": "0098d86d-0f98-4182-8ae2-c8d0fb098e6f",
+        "REPORT_ID": "627edcae-3f5a-4066-a493-b7a89f3660f6",
+        "TENANT_ID":  "a0773bda-3c38-41c9-9529-13b2db7a3826",
+        "CLIENT_ID": "039fa204-ddda-4621-978c-5c5c6fee4dd7",
+        "CLIENT_SECRET":  "bYX1r~vY1tpNk_nhI3pvG7~i09it3.~iYn",
+        "POWER_BI_USER": "tech@ubits.co",
+        "POWER_BI_PASS":  "2j7W9GCbSyU7io7DI4"
+      }
     }
   }
 }

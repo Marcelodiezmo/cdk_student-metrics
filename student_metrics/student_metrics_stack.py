@@ -1,5 +1,8 @@
+from os import path
 from aws_cdk import (
     aws_apigateway as _agw,
+    aws_lambda as _lambda,
+    aws_iam as _iam,
     core
 )
 
@@ -17,11 +20,14 @@ class StudentMetricsStack(core.Stack):
         # Get variables by stage
         shared_values = self.get_variables(self, stage)
 
+        powerBI_values = self.get_power_bi_variables(self, stage)
+
         # Create the Bucket
         bucket_name = "student-metrics"
 
         if stage != "prod" and stage != "main":
-            student_bucket = bucket_stack.bucketStack(self, f"{bucket_name}-{stage}", f"{bucket_name}-{stage}", stage=stage)
+            student_bucket = bucket_stack.bucketStack(self, f"{bucket_name}-{stage}", f"{bucket_name}-{stage}",
+                                                      stage=stage)
         else:
             student_bucket = bucket_stack.bucketStack(self, bucket_name, bucket_name, stage=stage)
 
@@ -49,8 +55,8 @@ class StudentMetricsStack(core.Stack):
         company_lambda = lambda_stack.lambdaStack(self, 'company', lambda_name='company', shared_values=shared_values,
                                                   has_security=True)
 
-        dashboard_powerbi_lambda = lambda_stack.lambdaStack(self, 'dashboard_powerbi', lambda_name='dashboard_powerbi',
-                                                            shared_values=shared_values, has_security=False)
+        # dashboard_powerbi_lambda = lambda_stack.lambdaStack(self, 'dashboard_powerbi', lambda_name='dashboard_powerbi',
+        #                                                     shared_values=shared_values, has_security=False)
 
         student_course_recommendations_lambda = lambda_stack.lambdaStack(self, 'student_course_recommendations',
                                                                          lambda_name='course_recommendations',
@@ -60,6 +66,34 @@ class StudentMetricsStack(core.Stack):
                                                                              lambda_name='put_course_recommendations',
                                                                              shared_values=shared_values,
                                                                              has_security=False)
+
+        lambda_role = _iam.Role.from_role_arn(self, 'student_role', role_arn=shared_values['rol_arn'])
+        lambda_layer = _lambda.LayerVersion.from_layer_version_attributes(self, 'student_layer',
+                                                                          layer_version_arn=shared_values['layer_arn'])
+        this_dir = path.dirname(__file__)
+        dashboard_powerbi_lambda = _lambda.Function(
+            self,
+            'student_metrics_dashboard_powerbi',
+            function_name='student_metrics_dashboard_powerbi',
+            code=_lambda.Code.from_asset(path.join(this_dir, 'lambdas/dashboard_powerbi')),
+            handler='app.handler',
+            runtime=_lambda.Runtime.PYTHON_3_8,
+            description='Lambda for student metrics project',
+            role=lambda_role,
+            layers=[lambda_layer],
+            environment={
+                "WORKSPACE_ID": powerBI_values['WORKSPACE_ID'],
+                "REPORT_ID": powerBI_values['REPORT_ID'],
+                "TENANT_ID": powerBI_values['TENANT_ID'],
+                "CLIENT_ID": powerBI_values['CLIENT_ID'],
+                "CLIENT_SECRET": powerBI_values['CLIENT_SECRET'],
+                "POWER_BI_USER": powerBI_values['POWER_BI_USER'],
+                "POWER_BI_PASS": powerBI_values['POWER_BI_PASS']
+            },
+            timeout=core.Duration.seconds(16)
+        )
+
+        dashboard_powerbi_lambda.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
 
         # Create the Api
         api_name = 'StudentMetrics'
@@ -119,7 +153,12 @@ class StudentMetricsStack(core.Stack):
         )
 
         # Integrate API and dashboard_powerbi lambda
-        dashboard_powerbi_integration = _agw.LambdaIntegration(dashboard_powerbi_lambda.student_lambda)
+        dashboard_powerbi_integration = _agw.LambdaIntegration(
+            dashboard_powerbi_lambda.student_lambda,
+            request_parameters={
+                "integration.request.querystring.newtoken": "method.request.querystring.newtoken"
+            }
+        )
 
         # Integrate API and student_course_recommendations_lambda
         student_course_recommendations_integration = _agw.LambdaIntegration(
@@ -229,3 +268,16 @@ class StudentMetricsStack(core.Stack):
             return shared_values['prod_values']
         elif stage == 'main':
             return shared_values['main_values']
+
+    @staticmethod
+    def get_power_bi_variables(self, stage):
+        powerBI_values = self.node.try_get_context('powerBI_values')
+
+        if stage == 'test':
+            return powerBI_values['test_values']
+        elif stage == 'dev':
+            return powerBI_values['dev_values']
+        elif stage == 'prod':
+            return powerBI_values['prod_values']
+        elif stage == 'main':
+            return powerBI_values['main_values']
