@@ -72,6 +72,15 @@
     },
     "powerBI_values": {
       "dev_values": {
+        "WORKSPACE_ID": "7aa5ebe6-26bc-4366-8296-f5db395182d2",
+        "REPORT_ID": "cd0cccf3-acfb-43b3-baf5-8a85ada971b3",
+        "TENANT_ID":  "a0773bda-3c38-41c9-9529-13b2db7a3826",
+        "CLIENT_ID": "c4c3ed05-9559-4562-b14d-cb960544199f",
+        "CLIENT_SECRET":  "~YDX37OnqyQV~512._08ujWhF-oN0KJbfy",
+        "POWER_BI_USER": "tech@ubits.co",
+        "POWER_BI_PASS":  "2j7W9GCbSyU7io7DI4"
+      },
+      "test_values": {
         "WORKSPACE_ID": "0098d86d-0f98-4182-8ae2-c8d0fb098e6f",
         "REPORT_ID": "627edcae-3f5a-4066-a493-b7a89f3660f6",
         "TENANT_ID":  "a0773bda-3c38-41c9-9529-13b2db7a3826",

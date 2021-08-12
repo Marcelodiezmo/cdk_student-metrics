@@ -71,6 +71,7 @@ class StudentMetricsStack(core.Stack):
         lambda_layer = _lambda.LayerVersion.from_layer_version_attributes(self, 'student_layer',
                                                                           layer_version_arn=shared_values['layer_arn'])
         this_dir = path.dirname(__file__)
+        
         dashboard_powerbi_lambda = _lambda.Function(
             self,
             'student_metrics_dashboard_powerbi',
@@ -154,7 +155,7 @@ class StudentMetricsStack(core.Stack):
 
         # Integrate API and dashboard_powerbi lambda
         dashboard_powerbi_integration = _agw.LambdaIntegration(
-            dashboard_powerbi_lambda.student_lambda,
+            dashboard_powerbi_lambda,
             request_parameters={
                 "integration.request.querystring.newtoken": "method.request.querystring.newtoken"
             }
@@ -205,7 +206,8 @@ class StudentMetricsStack(core.Stack):
 
         dashboard_powerbi_resource.add_method(
             "GET",
-            dashboard_powerbi_integration
+            dashboard_powerbi_integration,
+            request_parameters={"method.request.querystring.newtoken": False}
             # api_key_required=True
         )
 
