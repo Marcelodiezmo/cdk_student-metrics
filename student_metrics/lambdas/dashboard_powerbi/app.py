@@ -30,7 +30,7 @@ def handler(event, context):
         if new_token:
             response_body = PowerBIClientService().get_token(True)
         else:
-            response_body = PowerBIClientService().get_token()
+            response_body = PowerBIClientService().get_token(False)
 
         response = ResponseFactory.ok_status(response_body).toJSON()
         print(response)

@@ -1,32 +1,43 @@
 import boto3
 
 dynamo_client = boto3.client('dynamodb')
+dynamodb = boto3.resource('dynamodb', region_name="us-east-1")
 
 class Dynamo_Methods:
-    def get_credentials_from_dynamo(self, environment):
+    def get_credentials_from_dynamo(environment):
+        print("El environment es ", environment)
+
+        table = dynamodb.Table('powerbiCredentials')
+
         try:
-            table_name = 'powerbiCredentials'
-            response = dynamo_client.get_item(
-                TableName=table_name,
-                Key={
-                    'environment': {'S': environment}
+            response = table.get_item(
+            Key={
+                    'environment': environment
                 }
             )
-            return response
-        except:
+            print("La respuesta es")
+            print(response['Item'])
+            return response['Item']
+        except Exception as e:
+            print(e)
             return None
 
-    def get_value_from_powerbi_data(self, type_value):
+    def get_value_from_powerbi_data(type_value):
+        print("metodo get_value_from_powerbi_data")
+
+        table = dynamodb.Table('powerbiData')
+
         try:
-            table_name = 'powerbiData'
-            response = dynamo_client.get_item(
-                TableName=table_name,
-                Key={
-                    'type': {'S': type_value}
+            response = table.get_item(
+            Key={
+                    'type': type_value
                 }
             )
-            return response
-        except:
+            print("La respuesta es")
+            print(response['Item'])
+            return response['Item']
+        except Exception as e:
+            print(e)
             return None
 
     def write_dynamo_data(type_value, value):
@@ -39,5 +50,6 @@ class Dynamo_Methods:
                 }
             )
             return response
-        except:
+        except Exception as e:
+            print(e)
             return None
