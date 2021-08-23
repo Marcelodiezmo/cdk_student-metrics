@@ -82,15 +82,6 @@ class StudentMetricsStack(core.Stack):
             description='Lambda for student metrics project',
             role=lambda_role,
             layers=[lambda_layer],
-            environment={
-                "WORKSPACE_ID": powerBI_values['WORKSPACE_ID'],
-                "REPORT_ID": powerBI_values['REPORT_ID'],
-                "TENANT_ID": powerBI_values['TENANT_ID'],
-                "CLIENT_ID": powerBI_values['CLIENT_ID'],
-                "CLIENT_SECRET": powerBI_values['CLIENT_SECRET'],
-                "POWER_BI_USER": powerBI_values['POWER_BI_USER'],
-                "POWER_BI_PASS": powerBI_values['POWER_BI_PASS']
-            },
             timeout=core.Duration.seconds(16)
         )
 

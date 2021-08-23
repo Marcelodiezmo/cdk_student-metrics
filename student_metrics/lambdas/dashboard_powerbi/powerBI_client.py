@@ -3,7 +3,7 @@ from tzlocal import get_localzone
 
 from dynamo_methods import Dynamo_Methods
 from send_email import Send_Email
-from constants import MAIN_DYNAMO_CREDENTIALS, BACKUP_DYNAMO_CREDENTIALS, USERNAME_SMTP, PASSWORD_SMTP, CONFIGURATION_SET, SENDER, SENDER_NAME
+from constants import MAIN_DYNAMO_CREDENTIALS, BACKUP_DYNAMO_CREDENTIALS, USERNAME_SMTP, PASSWORD_SMTP, CONFIGURATION_SET, SENDER, SENDER_NAME, RECIPIENT
 
 AUTHORITY = ""
 CREDENTIALS = { 
@@ -125,18 +125,9 @@ class PowerBIClientService:
             return None
 
     # Get header with JWT Token
-    def get_header(self, search_dynamo: False, credentials: None):
+    def get_header(self, credentials: None):
         self.get_credentials_from_dynamo(credentials if credentials else MAIN_DYNAMO_CREDENTIALS)
-        header_dynamo = None
-
-        if search_dynamo:
-            header_dynamo = self.get_value_from_dynamo('header')
-
-        # Find some header from dynamo
-        if header_dynamo:
-            return json.loads(header_dynamo.replace("'",'"'))
-        else:
-            return self.generate_header()
+        return self.generate_header()
 
     
     def get_token(self, new_token: False):
@@ -157,12 +148,12 @@ class PowerBIClientService:
             if self.checkTokenTime(response_token['expiration']):
                 return embed_config
             else:
-                self.header = self.get_header(search_dynamo = True, credentials = None)
+                self.header = self.get_header(credentials = None)
                 return self.get_dashboard_url()
 
         else:
             # Search the header from dynamo or create a new header
-            self.header = self.get_header(search_dynamo = True, credentials = None)
+            self.header = self.get_header(credentials = None)
         
         return self.get_dashboard_url()
         
@@ -175,17 +166,16 @@ class PowerBIClientService:
         response = clientapp.acquire_token_for_client(scopes=CREDENTIALS.get("SCOPE"))
         header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + response['access_token']}
 
-        self.write_in_dynamo(type_value='header', value=str(header))
         return header
     
     def control_exception_token(self):
         global DYNAMO_CREDENTIALS
         if DYNAMO_CREDENTIALS == "":
             DYNAMO_CREDENTIALS = BACKUP_DYNAMO_CREDENTIALS
-            self.header = self.get_header(search_dynamo = False, credentials = BACKUP_DYNAMO_CREDENTIALS)
+            self.header = self.get_header(credentials = BACKUP_DYNAMO_CREDENTIALS)
             return self.get_dashboard_url()
         else:
-            Send_Email.email_powerbi_notify(sender=SENDER, sender_name=SENDER_NAME, recipient='rgarcia@ubits.co', username_smtp=USERNAME_SMTP, password_smtp=PASSWORD_SMTP, configuration_set=CONFIGURATION_SET, last_header=self.header, CREDENTIALS=CREDENTIALS, api_response="404 Error")
+            Send_Email.email_powerbi_notify(sender=SENDER, sender_name=SENDER_NAME, recipient=RECIPIENT, username_smtp=USERNAME_SMTP, password_smtp=PASSWORD_SMTP, configuration_set=CONFIGURATION_SET, last_header=self.header, CREDENTIALS=CREDENTIALS, api_response="404 Error")
             raise Exception(404, "Error consuming the PowerBI API")
 
     def validate_response_report(self, response_report):
