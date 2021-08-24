@@ -24,6 +24,10 @@ class StudentMetricsStack(core.Stack):
 
         # Create the Bucket
         bucket_name = "student-metrics"
+        lambda_role = _iam.Role.from_role_arn(self, 'student_role', role_arn=shared_values['rol_arn'])
+        lambda_layer = _lambda.LayerVersion.from_layer_version_attributes(self, 'student_layer',
+                                                                          layer_version_arn=shared_values['layer_arn'])
+        this_dir = path.dirname(__file__)
 
         if stage != "prod" and stage != "main":
             student_bucket = bucket_stack.bucketStack(self, f"{bucket_name}-{stage}", f"{bucket_name}-{stage}",
@@ -67,21 +71,24 @@ class StudentMetricsStack(core.Stack):
                                                                              shared_values=shared_values,
                                                                              has_security=False)
 
-        lambda_role = _iam.Role.from_role_arn(self, 'student_role', role_arn=shared_values['rol_arn'])
-        lambda_layer = _lambda.LayerVersion.from_layer_version_attributes(self, 'student_layer',
-                                                                          layer_version_arn=shared_values['layer_arn'])
-        this_dir = path.dirname(__file__)
+        lambda_name='dashboard_powerbi'
+        if "lambda_name" in shared_values:
+            lambda_name = lambda_name + shared_values["lambda_name"]
         
         dashboard_powerbi_lambda = _lambda.Function(
             self,
-            'student_metrics_dashboard_powerbi',
-            function_name='student_metrics_dashboard_powerbi',
+            'student_metrics_' + lambda_name,
+            function_name='student_metrics_' + lambda_name,
             code=_lambda.Code.from_asset(path.join(this_dir, 'lambdas/dashboard_powerbi')),
             handler='app.handler',
             runtime=_lambda.Runtime.PYTHON_3_8,
             description='Lambda for student metrics project',
             role=lambda_role,
             layers=[lambda_layer],
+            environment={
+                "TABLE_CREDENTIALS": powerBI_values['TABLE_CREDENTIALS'],
+                "TABLE_DATA": powerBI_values['TABLE_DATA']
+            },
             timeout=core.Duration.seconds(16)
         )
 

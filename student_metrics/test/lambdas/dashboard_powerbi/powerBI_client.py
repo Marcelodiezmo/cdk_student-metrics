@@ -197,15 +197,14 @@ class PowerBIClientService:
         return header
     
     def control_exception_token(self):
+        Send_Email.email_powerbi_notify(sender=SENDER, sender_name=SENDER_NAME, recipient=RECIPIENT, username_smtp=USERNAME_SMTP, password_smtp=PASSWORD_SMTP, configuration_set=CONFIGURATION_SET, last_header=self.header, CREDENTIALS=CREDENTIALS, api_response="404 Error")
         global DYNAMO_CREDENTIALS
         print(f"DYNAMO_CREDENTIALS = {DYNAMO_CREDENTIALS}")
         if DYNAMO_CREDENTIALS == "":
             DYNAMO_CREDENTIALS = BACKUP_DYNAMO_CREDENTIALS
             self.header = self.get_header(search_dynamo = False, credentials = BACKUP_DYNAMO_CREDENTIALS)
-
             return self.get_dashboard_url()
         else:
-            Send_Email.email_powerbi_notify(sender=SENDER, sender_name=SENDER_NAME, recipient=RECIPIENT, username_smtp=USERNAME_SMTP, password_smtp=PASSWORD_SMTP, configuration_set=CONFIGURATION_SET, last_header=self.header, CREDENTIALS=CREDENTIALS, api_response="404 Error")
             raise Exception(404, "Error consuming the PowerBI API")
 
     def validate_response_report(self, response_report):
