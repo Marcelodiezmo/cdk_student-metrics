@@ -249,7 +249,7 @@ class StudentMetricsStack(core.Stack):
         elif stage == 'dev':
             deployment_dev = _agw.Deployment(self, id='deployment_dev', api=api)
             _agw.Stage(self, id='dev_stage', deployment=deployment_dev, stage_name='dev')
-        if stage == 'main':
+        elif stage == 'main':
             deployment_main = _agw.Deployment(self, id='deployment_main', api=api)
             _agw.Stage(self, id='main_stage', deployment=deployment_main, stage_name='main')
         else:

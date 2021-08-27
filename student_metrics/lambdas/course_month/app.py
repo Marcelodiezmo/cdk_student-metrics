@@ -24,12 +24,12 @@ def exception_handler(response):
 
 
 def query_data(course):
-    try:
-        return dao.get_course_data(course)
-    except Exception as e:
-        response = ResponseError(404, e.args[0])
-        print('ERROR: ', e.args[0])
-        return exception_handler(response)
+    # try:
+    return dao.get_course_data(course)
+    # except Exception as e:
+    #     response = ResponseError(404, e.args[0])
+    #     print('ERROR: ', e.args[0])
+    #     return exception_handler(response)
 
 
 def unserialize_php(serialized_obj):

@@ -7,7 +7,7 @@ class Dynamo_Methods:
     def get_credentials_from_dynamo(environment):
         print("El environment es ", environment)
 
-        table = dynamodb.Table('powerbiCredentials')
+        table = dynamodb.Table('powerbiCredentials_Test')
 
         try:
             response = table.get_item(
@@ -25,7 +25,7 @@ class Dynamo_Methods:
     def get_value_from_powerbi_data(type_value):
         print("metodo get_value_from_powerbi_data")
 
-        table = dynamodb.Table('powerbiData')
+        table = dynamodb.Table('powerbiData_Test')
 
         try:
             response = table.get_item(
@@ -43,7 +43,7 @@ class Dynamo_Methods:
     def write_dynamo_data(type_value, value):
         try:
             response = dynamo_client.put_item(
-                TableName='powerbiData',
+                TableName='powerbiData_Test',
                 Item = {
                     'type': {"S": type_value},
                     'value': {"S": value}
@@ -53,3 +53,31 @@ class Dynamo_Methods:
         except Exception as e:
             print(e)
             return None
+    
+    def delete_powerbiData_Test_report():
+        table = dynamodb.Table('powerbiData_Test')
+
+        try:
+            table.delete_item(
+                Key={
+                    'type': 'report'
+                }
+            )
+        except Exception as e:
+            print(e)
+        else:
+            return print("Datos report eliminados")
+
+    def delete_powerbiData_Test_token():
+        table = dynamodb.Table('powerbiData_Test')
+
+        try:
+            table.delete_item(
+                Key={
+                    'type': 'token'
+                }
+            )
+        except Exception as e:
+            print(e)
+        else:
+            return print("Datos token eliminados")

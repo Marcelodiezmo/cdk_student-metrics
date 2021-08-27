@@ -289,3 +289,7 @@ class PowerBIClientService:
         # else:
         #     print("ERROR: ", "Error consuming the PowerBI API")
         #     raise Exception(404, "Error consuming the PowerBI API")
+
+    def delete_dynamo_data():
+        Dynamo_Methods.delete_powerbiData_Test_report()
+        Dynamo_Methods.delete_powerbiData_Test_token()

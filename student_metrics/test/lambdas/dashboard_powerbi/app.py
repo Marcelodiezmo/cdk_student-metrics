@@ -41,5 +41,9 @@ def handler():
     except Exception as e:
         return exception_handler(e)
 
+def delete_dynamo_data():
+    PowerBIClientService.delete_dynamo_data()
+
 if __name__ == '__main__':
-    handler()
+    # handler()
+    delete_dynamo_data()
