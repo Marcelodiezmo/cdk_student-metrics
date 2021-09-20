@@ -22,10 +22,12 @@ def getParam(event, param_name):
     except:
         return None
 
-def handler(event, context):
+def handler():
     print("Init Lambda")
     try:
-        new_token = getParam(event, 'newtoken')
+        # new_token = getParam(event, 'newtoken')
+
+        new_token = 1
 
         if new_token:
             response_body = PowerBIClientService().get_token(True)
@@ -38,3 +40,10 @@ def handler(event, context):
         return response
     except Exception as e:
         return exception_handler(e)
+
+def delete_dynamo_data():
+    PowerBIClientService.delete_dynamo_data()
+
+if __name__ == '__main__':
+    # handler()
+    delete_dynamo_data()

@@ -22,12 +22,12 @@ def exception_handler(response):
 
 
 def query_data(student_id):
-    try:
-        return dao.get_student_name(student_id)
-    except Exception as e:
-        response = ResponseError(404, e.args[0])
-        print('ERROR: ', e.args[0])
-        return exception_handler(response)
+    # try:
+    return dao.get_student_name(student_id)
+    # except Exception as e:
+    #     response = ResponseError(404, e.args[0])
+    #     print('ERROR: ', e.args[0])
+    #     return exception_handler(response)
 
 
 def handler(event, context):

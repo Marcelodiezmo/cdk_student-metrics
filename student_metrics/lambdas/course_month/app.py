@@ -24,12 +24,12 @@ def exception_handler(response):
 
 
 def query_data(course):
-    try:
-        return dao.get_course_data(course)
-    except Exception as e:
-        response = ResponseError(404, e.args[0])
-        print('ERROR: ', e.args[0])
-        return exception_handler(response)
+    # try:
+    return dao.get_course_data(course)
+    # except Exception as e:
+    #     response = ResponseError(404, e.args[0])
+    #     print('ERROR: ', e.args[0])
+    #     return exception_handler(response)
 
 
 def unserialize_php(serialized_obj):
@@ -69,13 +69,7 @@ def handler(event, context):
             course.courseId = record['course_id']
             course.courseType = record['Contenido']
 
-        print("El tipo antes de consulta es")
-        print(course.courseType)
-
         course = query_data(course)
-
-        print("El tipo despues de consulta es")
-        print(course.courseType)
 
         # unserialize PHP for course_duration
         if course.courseDuration != "0":
