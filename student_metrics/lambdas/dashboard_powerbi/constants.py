@@ -11,4 +11,4 @@ PASSWORD_SMTP = "BDQ+7bG7tqvrnDebVyjo9VeYSqTFPbQwL5ylzOEtRRDN"
 CONFIGURATION_SET = "analyticsS3"
 SENDER = 'tech@ubits.co'
 SENDER_NAME = 'Tech Ubits Learning'
-RECIPIENT = 'rgarcia@ubits.co'
+RECIPIENT = 'bherrera@ubits.co'
