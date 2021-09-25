@@ -45,7 +45,7 @@
         "db_port": "3036",
         "rol_arn" : "arn:aws:iam::986361039434:role/SharedResources-LambdaExecutionRole-1OCOU5JJ2FXL3",
         "secret_name": "",
-        "layer_arn": "arn:aws:lambda:us-east-1:986361039434:layer:shared-resources-lib:7",
+        "layer_arn": "arn:aws:lambda:us-east-1:986361039434:layer:shared-resources-lib:8",
         "security_group_id": "sg-0d86aec65fca2c7cf",
         "vcp_id": "vpc-00b37952258c43972",
         "subnets": [
