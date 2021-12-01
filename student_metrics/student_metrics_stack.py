@@ -3,6 +3,7 @@ from aws_cdk import (
     aws_apigateway as _agw,
     aws_lambda as _lambda,
     aws_iam as _iam,
+    aws_ec2 as ec2,
     core
 )
 
@@ -71,10 +72,10 @@ class StudentMetricsStack(core.Stack):
                                                                              shared_values=shared_values,
                                                                              has_security=False)
 
-        lambda_name='dashboard_powerbi'
+        lambda_name = 'dashboard_powerbi'
         if "lambda_name" in shared_values:
             lambda_name = lambda_name + shared_values["lambda_name"]
-        
+
         dashboard_powerbi_lambda = _lambda.Function(
             self,
             'student_metrics_' + lambda_name,
@@ -94,6 +95,27 @@ class StudentMetricsStack(core.Stack):
 
         dashboard_powerbi_lambda.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
 
+        vpc_endpoint = ec2.CfnVPCEndpoint(
+            self,
+            "StudentMetricsVPCEndpoint",
+            service_name=shared_values["vpce_service_name"],
+            vpc_id=shared_values['vpce_vpc_id'],
+            policy_document={
+                "Version": "2012-10-17",
+                "Statement":
+                    {
+                        "Action": "*",
+                        "Effect": "Allow",
+                        "Resource": "*",
+                        "Principal": "*"
+                    }
+            },
+            private_dns_enabled=False,
+            security_group_ids=shared_values["vpce_security_groups"],
+            subnet_ids=shared_values['vpce_subnets'],
+            vpc_endpoint_type=shared_values['vpce_endpoint_type']
+        )
+
         # Create the Api
         api_name = 'StudentMetrics'
         if stage == 'test':
@@ -105,7 +127,18 @@ class StudentMetricsStack(core.Stack):
             self,
             api_name,
             description='API for users metrics',
-            deploy=False
+            deploy=False,
+            endpoint_configuration=_agw.EndpointConfiguration(
+                types=[_agw.EndpointType.PRIVATE],
+                vpc_endpoints=[vpc_endpoint]
+            ),
+            policy=_iam.PolicyDocument(statements=[_iam.PolicyStatement(
+                actions=['*'],
+                effect=_iam.Effect('ALLOW'),
+                resources=['*'],
+                principals=[_iam.AnyPrincipal()]
+            )])
+
         )
 
         # Main Resources
@@ -218,29 +251,6 @@ class StudentMetricsStack(core.Stack):
             "POST",
             put_student_course_recommendations_integration,
         )
-
-        # # key = api.add_api_key("ApiKey", api_key_name="studentMetricsKey")
-        # #
-        # # plan = api.add_usage_plan(
-        # #     "UsagePlan",
-        # #     name="Easy",
-        # #     api_key=key,
-        # #     throttle={
-        # #         "rate_limit": 100,
-        # #         "burst_limit": 50
-        # #     }
-        # # )
-        # #
-        # # plan.add_api_stage(
-        # #     stage=api.deployment_stage,
-        # #     throttle=[{
-        # #         "method": most_popular_method,
-        # #         "throttle": {
-        # #             "rate_limit": 100,
-        # #             "burst_limit": 50
-        # #         }
-        # #     }]
-        # # )
 
         # Deployment
         if stage == 'test':
