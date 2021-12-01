@@ -40,7 +40,12 @@
         "vcp_id": "vpc-4f3dd135",
         "subnets": ["subnet-0aea8240", "subnet-430ca91f"],
         "bucket_name": "student-metrics-test",
-        "lambda_name": "_test"
+        "lambda_name": "_test",
+        "vpce_service_name": "com.amazonaws.us-east-1.execute-api",
+        "vpce_vpc_id": "",
+        "vpce_security_groups": [""],
+        "vpce_subnets": [""],
+        "vpce_endpoint_type": "Interface"
       },
       "prod_values": {
         "rds_host": "ubits-prod-3dot10-bigbang-db-rds-aurora-cluster.cluster-ro-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
@@ -57,7 +62,12 @@
           "subnet-040bd058f70d2ca42",
           "subnet-0c0c6f22eddeb11c7"
         ],
-        "bucket_name": "student-metrics"
+        "bucket_name": "student-metrics",
+        "vpce_service_name": "com.amazonaws.us-east-1.execute-api",
+        "vpce_vpc_id": "",
+        "vpce_security_groups": [""],
+        "vpce_subnets": [""],
+        "vpce_endpoint_type": "Interface"
       },
       "main_values": {
         "rds_host": "ubits-prod-3dot10-main-aurora-cluster.cluster-ro-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
