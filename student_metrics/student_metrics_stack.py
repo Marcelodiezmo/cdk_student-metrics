@@ -4,9 +4,6 @@ from aws_cdk import (
     aws_lambda as _lambda,
     aws_iam as _iam,
     aws_ec2 as ec2,
-    aws_certificatemanager as _cm,
-    aws_route53 as _route53,
-    aws_route53_targets as _target,
     core
 )
 
