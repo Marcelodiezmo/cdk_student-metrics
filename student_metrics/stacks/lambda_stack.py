@@ -18,11 +18,11 @@ class lambdaStack(core.Construct):
         this_dir = path.dirname(__file__)
         code_route = _lambda.Code.from_asset(path.join(this_dir, '../lambdas/' + lambda_name))
 
-        rds_host = shared_values['rds_host']
-        db_user = shared_values['db_user']
-        db_pass = shared_values['db_pass']
+        #rds_host = shared_values['rds_host']
+        #db_user = shared_values['db_user']
+        #db_pass = shared_values['db_pass']
         db_name = shared_values['db_name']
-        db_port = shared_values['db_port']
+        #db_port = shared_values['db_port']
         secret_name = shared_values['secret_name']
         layer_arn = shared_values['layer_arn']
         role_arn = shared_values['rol_arn']
@@ -61,11 +61,11 @@ class lambdaStack(core.Construct):
             security_groups=[security_group] if has_security else None,
             layers=[lambda_layer],
             environment={
-                "rds_host": rds_host,
-                "db_user": db_user,
-                "db_pass": db_pass,
+                #"rds_host": rds_host,
+                #"db_user": db_user,
+                #"db_pass": db_pass,
                 "db_name": db_name,
-                "db_port": db_port,
+                #"db_port": db_port,
                 "bucket_name": bucket_name,
                 "secret_name": secret_name
             },
