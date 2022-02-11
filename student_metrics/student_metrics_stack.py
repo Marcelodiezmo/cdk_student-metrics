@@ -80,27 +80,7 @@ class StudentMetricsStack(core.Stack):
 
         dashboard_powerbi_lambda.grant_invoke(_iam.ServicePrincipal('apigateway.amazonaws.com'))
 
-        # vpc_endpoint = ec2.CfnVPCEndpoint(
-        #     self,
-        #     "StudentMetricsVPCEndpoint",
-        #     service_name=shared_values["vpce_service_name"],
-        #     vpc_id=shared_values['vpce_vpc_id'],
-        #     policy_document={
-        #         "Version": "2012-10-17",
-        #         "Statement":
-        #             {
-        #                 "Action": "*",
-        #                 "Effect": "Allow",
-        #                 "Resource": "*",
-        #                 "Principal": "*"
-        #             }
-        #     },
-        #     private_dns_enabled=False,
-        #     security_group_ids=shared_values["vpce_security_groups"],
-        #     subnet_ids=shared_values['vpce_subnets'],
-        #     vpc_endpoint_type=shared_values['vpce_endpoint_type']
-        # )
-
+        # Configure the VPC Endpoint
         vpc = ec2.Vpc.from_lookup(self, "vpc",vpc_id=shared_values['vpce_vpc_id'])
 
         subnets = []
@@ -148,17 +128,6 @@ class StudentMetricsStack(core.Stack):
                 principals=[_iam.AnyPrincipal()]
             )])
         )
-
-        # hosted_zone = _route53.HostedZone.from_lookup(self, "student_route_base_zone", domain_name=shared_values['hosted_zone'])
-        #
-        # api.add_domain_name(
-        #     id="student_domain",
-        #     domain_name=shared_values['api_domain_name'],
-        #     security_policy=_agw.SecurityPolicy.TLS_1_2,
-        #     certificate=_cm.Certificate.from_certificate_arn(self, "student_certificate", shared_values["acm_certificate_arn"])
-        # )
-        #
-        # _route53.ARecord(self, "student_DNS", zone=hosted_zone, record_name=shared_values['api_domain_name'],target=_route53.RecordTarget.from_alias(_target.ApiGateway(api)))
 
         # Main Resources
         user_resource = api.root.add_resource("users")

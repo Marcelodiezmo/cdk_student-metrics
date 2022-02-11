@@ -24,11 +24,7 @@
         "vpce_service_name": "com.amazonaws.us-east-1.execute-api",
         "vpce_vpc_id": "vpc-018a67ed2f2b7cccc",
         "vpce_security_groups": ["sg-09ecff4303aaf9489"],
-        "vpce_subnets": ["subnet-0a2901b9df6b6846f", "subnet-0134f85cfb4ecd7b1"],
-        "vpce_endpoint_type": "Interface",
-        "hosted_zone": "dev.ubitslearning.com",
-        "api_domain_name": "internalapi.dev.ubitslearning.com",
-        "acm_certificate_arn": "arn:aws:acm:us-east-1:824404647578:certificate/bc2a48ad-9db1-4fcf-8c67-1b94d65aabef"
+        "vpce_subnets": ["subnet-0a2901b9df6b6846f", "subnet-0134f85cfb4ecd7b1"]
       },
       "test_values": {
         "rds_host": "ubits-prod-3dot10-bigbang-db-rds-aurora-cluster.cluster-ro-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
@@ -47,11 +43,7 @@
         "vpce_service_name": "com.amazonaws.us-east-1.execute-api",
         "vpce_vpc_id": "",
         "vpce_security_groups": [""],
-        "vpce_subnets": [""],
-        "vpce_endpoint_type": "Interface",
-        "hosted_zone": "test.ubitslearning.com",
-        "api_domain_name": "internalapi.test.ubitslearning.com",
-        "acm_certificate_arn": "arn:aws:acm:us-east-1:824404647578:certificate/bc2a48ad-9db1-4fcf-8c67-1b94d65aabef"
+        "vpce_subnets": [""]
       },
       "prod_values": {
         "rds_host": "ubits-prod-3dot10-bigbang-db-rds-aurora-cluster.cluster-ro-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
@@ -69,11 +61,7 @@
         "vpce_service_name": "com.amazonaws.us-east-1.execute-api",
         "vpce_vpc_id": "",
         "vpce_security_groups": [""],
-        "vpce_subnets": [""],
-        "vpce_endpoint_type": "Interface",
-        "hosted_zone": "prod.ubitslearning.com",
-        "api_domain_name": "internalapi.prod.ubitslearning.com",
-        "acm_certificate_arn": "arn:aws:acm:us-east-1:824404647578:certificate/bc2a48ad-9db1-4fcf-8c67-1b94d65aabef"
+        "vpce_subnets": [""]
       },
       "main_values": {
         "rds_host": "ubits-prod-3dot10-main-aurora-cluster.cluster-ro-c9maghmfm0zw.us-east-1.rds.amazonaws.com",
