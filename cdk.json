@@ -9,14 +9,18 @@
     "@aws-cdk/aws-kms:defaultKeyPolicies": true,
     "shared_values": {
       "dev_values": {
-        "db_name": "bitnami_moodle",
+        "db_name": "bitnami_moodle_shield",
         "rol_arn" : "arn:aws:iam::824404647578:role/StackSharedResources-LambdaExecutionRole-FW049PTC6FKD",
         "secret_name": "db_moodle_api",
         "layer_arn": "arn:aws:lambda:us-east-1:824404647578:layer:shared-resources-lib:24",
         "security_group_id": "sg-0e453c25b3154a2ee",
         "vcp_id": "vpc-0a79ec6fe620b8e17",
         "subnets": ["subnet-0a2901b9df6b6846f"],
-        "bucket_name": "student-metrics-dev"
+        "bucket_name": "student-metrics-dev",
+        "vpce_service_name": "com.amazonaws.us-east-1.execute-api",
+        "vpce_vpc_id": "vpc-018a67ed2f2b7cccc",
+        "vpce_security_groups": ["sg-09ecff4303aaf9489"],
+        "vpce_subnets": ["subnet-0a2901b9df6b6846f", "subnet-0134f85cfb4ecd7b1"]
       },
       "test_values": {
         "db_name": "bitnami_moodle",
@@ -27,7 +31,11 @@
         "vcp_id": "vpc-4f3dd135",
         "subnets": ["subnet-0aea8240", "subnet-430ca91f"],
         "bucket_name": "student-metrics-test",
-        "lambda_name": "_test"
+        "lambda_name": "_test",
+        "vpce_service_name": "com.amazonaws.us-east-1.execute-api",
+        "vpce_vpc_id": "",
+        "vpce_security_groups": [""],
+        "vpce_subnets": [""]
       },
       "prod_values": {
         "db_name": "bitnami_moodle",
@@ -36,11 +44,12 @@
         "layer_arn": "arn:aws:lambda:us-east-1:986361039434:layer:shared-resources-lib:8",
         "security_group_id": "sg-0d86aec65fca2c7cf",
         "vcp_id": "vpc-00b37952258c43972",
-        "subnets": [
-          "subnet-040bd058f70d2ca42",
-          "subnet-0c0c6f22eddeb11c7"
-        ],
-        "bucket_name": "student-metrics"
+        "subnets": ["subnet-040bd058f70d2ca42","subnet-0c0c6f22eddeb11c7"],
+        "bucket_name": "student-metrics",
+        "vpce_service_name": "com.amazonaws.us-east-1.execute-api",
+        "vpce_vpc_id": "",
+        "vpce_security_groups": [""],
+        "vpce_subnets": [""]
       },
       "main_values": {
         "db_name": "bitnami_moodle",

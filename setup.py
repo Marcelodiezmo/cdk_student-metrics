@@ -25,7 +25,10 @@ setuptools.setup(
         "aws-cdk.aws_s3_deployment==1.80.0",
         "aws-cdk.aws_lambda==1.80.0",
         "aws-cdk.aws_iam==1.80.0",
-        "aws-cdk.aws_ec2==1.80.0"
+        "aws-cdk.aws_ec2==1.80.0",
+        "aws-cdk.aws_certificatemanager==1.80.0",
+        "aws-cdk.aws_route53==1.80.0",
+        "aws-cdk.aws_route53_targets==1.80.0",
     ],
 
     python_requires=">=3.6",
