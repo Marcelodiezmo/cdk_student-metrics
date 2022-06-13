@@ -1,1 +1,2 @@
-KEY = 'most-popular-bits.json'
+KEY = 'usersTop10Max.json'
+KEY2 = 'usersTopNormal.json'

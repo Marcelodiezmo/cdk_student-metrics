@@ -30,8 +30,17 @@ def query_data(course_id):
 
 
 def handler(event, context):
+    user=event['pathParameters']['mostpopular']
+    print(event)
+    
     bucket = os.environ['bucket_name']
-    key = constants.KEY
+    
+    if user=='1':
+        key = constants.KEY
+    elif user=='0':
+        key = constants.KEY2
+        
+    print(key)
 
     dataToReturn = []
     course_values = CourseValues()
