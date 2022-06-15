@@ -103,7 +103,7 @@ class StudentMetricsStack(core.Stack):
         )
 
         # Create the Api
-        api_name = 'StudentMetrics'
+        api_name = 'StudentMetrics_dev'
         if stage == 'test':
             api_name = 'StudentMetrics_test'
         elif stage == 'main':
@@ -135,7 +135,7 @@ class StudentMetricsStack(core.Stack):
         students_metrics_resource_by_id = student_resource_by_id.add_resource("metrics")
 
         # Paths resources
-        most_popular_resource = metrics_resource.add_resource("mostpopular")
+        most_popular_resource = metrics_resource.add_resource("mostpopular").add_resource("{mostpopular}")
         course_month_resource = metrics_resource.add_resource("coursemonth")
         ranking_company_resource = metrics_resource.add_resource("rankingcompany").add_resource("{companyId}")
         finished_courses_by_student_id_resource = students_metrics_resource_by_id.add_resource("finishedcourses")
