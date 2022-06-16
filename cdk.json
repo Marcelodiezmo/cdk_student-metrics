@@ -9,7 +9,9 @@
     "@aws-cdk/aws-kms:defaultKeyPolicies": true,
     "shared_values": {
       "dev_values": {
-        "db_name": "bitnami_moodle_shield",
+        "value": "dev",
+        "db_name": "bitnami_moodle",
+        "rds_host": "ubits-dev-3dot10-bigbang-db-rds-aurora-v2.cowvbobtzldr.us-east-1.rds.amazonaws.com",
         "rol_arn" : "arn:aws:iam::824404647578:role/StackSharedResources-LambdaExecutionRole-FW049PTC6FKD",
         "secret_name": "db_moodle_api",
         "layer_arn": "arn:aws:lambda:us-east-1:824404647578:layer:shared-resources-lib:24",
@@ -20,9 +22,14 @@
         "vpce_service_name": "com.amazonaws.us-east-1.execute-api",
         "vpce_vpc_id": "vpc-018a67ed2f2b7cccc",
         "vpce_security_groups": ["sg-09ecff4303aaf9489"],
+        "db_port":"3306",
+        "db_pass":"uymVSWlRyXlL",
+        "db_user":"ubits_prod_moodle",
         "vpce_subnets": ["subnet-0a2901b9df6b6846f", "subnet-0134f85cfb4ecd7b1"]
+        
       },
       "test_values": {
+        "value": "test",
         "db_name": "bitnami_moodle",
         "rol_arn" : "arn:aws:iam::986361039434:role/SharedResources-LambdaExecutionRole-1OCOU5JJ2FXL3",
         "secret_name": "db_moodle_test",
@@ -35,9 +42,14 @@
         "vpce_service_name": "com.amazonaws.us-east-1.execute-api",
         "vpce_vpc_id": "",
         "vpce_security_groups": [""],
-        "vpce_subnets": [""]
+        "vpce_subnets": [""],
+        "rds_host": "ubits-dev-3dot10-bigbang-db-rds-aurora-v2.cowvbobtzldr.us-east-1.rds.amazonaws.com",
+        "db_port":"3306",
+        "db_pass":"uymVSWlRyXlL",
+        "db_user":"ubits_prod_moodle"
       },
       "prod_values": {
+        "value": "prod",
         "db_name": "bitnami_moodle",
         "rol_arn" : "arn:aws:iam::986361039434:role/SharedResources-LambdaExecutionRole-1OCOU5JJ2FXL3",
         "secret_name": "",
@@ -49,7 +61,11 @@
         "vpce_service_name": "com.amazonaws.us-east-1.execute-api",
         "vpce_vpc_id": "",
         "vpce_security_groups": [""],
-        "vpce_subnets": [""]
+        "vpce_subnets": [""],
+        "rds_host": "ubits-dev-3dot10-bigbang-db-rds-aurora-v2.cowvbobtzldr.us-east-1.rds.amazonaws.com",
+        "db_port":"3306",
+        "db_pass":"uymVSWlRyXlL",
+        "db_user":"ubits_prod_moodle"
       },
       "main_values": {
         "db_name": "bitnami_moodle",
