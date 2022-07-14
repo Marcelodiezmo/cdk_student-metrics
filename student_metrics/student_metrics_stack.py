@@ -34,25 +34,25 @@ class StudentMetricsStack(core.Stack):
             student_bucket = bucket_stack.bucketStack(self, bucket_name, bucket_name, stage=stage)
 
         # Create Lambdas
-        course_month_lambda = lambda_stack.lambdaStack(self, 'course_month', lambda_name='course_month',shared_values=shared_values, has_security=True)
+        course_month_lambda = lambda_stack.lambdaStack(self, 'course_month', lambda_name='course_month',shared_values=shared_values, has_security=True, has_mongo=False)
         student_bucket.student_bucket.grant_read(course_month_lambda.student_lambda)
 
-        most_popular_lambda = lambda_stack.lambdaStack(self, 'most_popular', lambda_name='most_popular',shared_values=shared_values, has_security=True)
+        most_popular_lambda = lambda_stack.lambdaStack(self, 'most_popular', lambda_name='most_popular',shared_values=shared_values, has_security=True, has_mongo=False)
         student_bucket.student_bucket.grant_read(most_popular_lambda.student_lambda)
 
-        ranking_company_lambda = lambda_stack.lambdaStack(self, 'ranking_company', lambda_name='ranking_company',shared_values=shared_values, has_security=True)
+        ranking_company_lambda = lambda_stack.lambdaStack(self, 'ranking_company', lambda_name='ranking_company',shared_values=shared_values, has_security=True, has_mongo=False)
         student_bucket.student_bucket.grant_read(ranking_company_lambda.student_lambda)
 
-        finished_courses_lambda = lambda_stack.lambdaStack(self, 'finished_courses', lambda_name='finished_courses',shared_values=shared_values, has_security=True)
+        finished_courses_lambda = lambda_stack.lambdaStack(self, 'finished_courses', lambda_name='finished_courses',shared_values=shared_values, has_security=True, has_mongo=False)
         student_bucket.student_bucket.grant_read(finished_courses_lambda.student_lambda)
 
-        progress_plan_lambda = lambda_stack.lambdaStack(self, 'progress_plan', lambda_name='progress_plan',shared_values=shared_values, has_security=True)
+        progress_plan_lambda = lambda_stack.lambdaStack(self, 'progress_plan', lambda_name='progress_plan',shared_values=shared_values, has_security=True, has_mongo=False)
         student_bucket.student_bucket.grant_read(progress_plan_lambda.student_lambda)
 
-        company_lambda = lambda_stack.lambdaStack(self, 'company', lambda_name='company', shared_values=shared_values,has_security=True)
+        company_lambda = lambda_stack.lambdaStack(self, 'company', lambda_name='company', shared_values=shared_values,has_security=True, has_mongo=False)
 
-        student_course_recommendations_lambda = lambda_stack.lambdaStack(self, 'student_course_recommendations',lambda_name='course_recommendations',shared_values=shared_values,has_security=False)
-        put_student_course_recommendations_lambda = lambda_stack.lambdaStack(self, 'put_student_course_recommendations',lambda_name='put_course_recommendations',shared_values=shared_values,has_security=False)
+        student_course_recommendations_lambda = lambda_stack.lambdaStack(self, 'student_course_recommendations',lambda_name='course_recommendations',shared_values=shared_values,has_security=False, has_mongo=True)
+        put_student_course_recommendations_lambda = lambda_stack.lambdaStack(self, 'put_student_course_recommendations',lambda_name='put_course_recommendations',shared_values=shared_values,has_security=False, has_mongo=False)
 
         lambda_name = 'dashboard_powerbi'
         if "lambda_name" in shared_values:

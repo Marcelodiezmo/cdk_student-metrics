@@ -80,5 +80,4 @@ def exception_handler(response):
 
     response = ResponseFactory.error_client(response.code, response).toJSON()
     
-    print(response)
     return response
