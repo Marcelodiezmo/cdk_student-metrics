@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 from os import device_encoding
-from aws_cdk import core
+import aws_cdk as core
+from constructs import Construct
 
 from student_metrics.student_metrics_stack import StudentMetricsStack
 from student_metrics.student_metrics_stack import StudentMetricsStackTEST

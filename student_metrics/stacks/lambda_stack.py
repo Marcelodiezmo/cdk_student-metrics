@@ -2,15 +2,16 @@ from os import path
 from aws_cdk import (
     aws_lambda as _lambda,
     aws_iam as _iam,
-    aws_ec2 as _ec2,
-    core
-)
+    aws_ec2 as _ec2)
+
+import aws_cdk as core
+from constructs import Construct
 
 
-class lambdaStack(core.Construct):
+class lambdaStack(Construct):
     student_lambda: _lambda.Function
 
-    def __init__(self, scope: core.Construct, construct_id: str,
+    def __init__(self, scope: Construct, construct_id: str,
                  lambda_name: str, shared_values: [], has_security: bool, has_mongo: bool,
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -18,7 +19,7 @@ class lambdaStack(core.Construct):
         this_dir = path.dirname(__file__)
         code_route = _lambda.Code.from_asset(path.join(this_dir, '../lambdas/' + lambda_name))
 
-        print(shared_values['value'])
+        #print(shared_values['value'])
         rds_host = shared_values['rds_host']
         db_user = shared_values['db_user']
         db_pass = shared_values['db_pass']
@@ -109,10 +110,10 @@ class lambdaStack(core.Construct):
 
         self.student_lambda = student_lambda
 
-class lambdaStackTEST(core.Construct):
+class lambdaStackTEST(Construct):
     student_lambda: _lambda.Function
 
-    def __init__(self, scope: core.Construct, construct_id: str,
+    def __init__(self, scope: Construct, construct_id: str,
                  lambda_name: str, shared_values: [], has_security: bool, has_mongo: bool,
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -120,7 +121,7 @@ class lambdaStackTEST(core.Construct):
         this_dir = path.dirname(__file__)
         code_route = _lambda.Code.from_asset(path.join(this_dir, '../lambdas/' + lambda_name))
 
-        print(shared_values['value'])
+        #print(shared_values['value'])
         rds_host = shared_values['rds_host']
         db_user = shared_values['db_user']
         db_pass = shared_values['db_pass']

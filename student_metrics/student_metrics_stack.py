@@ -3,19 +3,19 @@ from aws_cdk import (
     aws_apigateway as _agw,
     aws_lambda as _lambda,
     aws_iam as _iam,
-    aws_ec2 as ec2,
-    core
-)
+    aws_ec2 as ec2)
 
 from .stacks import (
     bucket_stack,
     lambda_stack
 )
 
+import aws_cdk as core
+from constructs import Construct
 
 class StudentMetricsStack(core.Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, stage: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, stage: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # Get variables by stage
@@ -285,7 +285,7 @@ class StudentMetricsStack(core.Stack):
 
 class StudentMetricsStackTEST(core.Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, stage: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, stage: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # Get variables by stage
