@@ -1,11 +1,8 @@
-import boto3
 import pymongo
 import random
 import pandas as pd
 import pymysql
 import os 
-
-s3 = boto3.client('s3')
 
 def get_realtime_recommendations(cursor, userId,recommendations):
     recommendations = [str(recommendation) for recommendation in recommendations]
@@ -38,7 +35,11 @@ class Main:
 
     def set_number_recomendations(self, number_recomendations):
         print("El número de recomendaciones es ", number_recomendations)
-        self._number_recomendations = number_recomendations
+        if (number_recomendations <= 15) & (number_recomendations >= 1):
+            self._number_recomendations = number_recomendations
+        else:
+            self._number_recomendations = 10
+            
 
     def get_student_id(self):
         return self._student_id
@@ -85,7 +86,7 @@ class Main:
             })
               
             
-        temp_recommendations = [course["course_id"] for course in courses]
+        temp_recommendations = [course["course_id"] for course in courses] # Ids totales
 
         # GET REALTIME RECOMMENDATIONS
         
@@ -96,8 +97,15 @@ class Main:
         cursor = conn.cursor()
         
         # CALL FUNCTION
-        filtered_recommendations = get_realtime_recommendations(cursor,user_id,temp_recommendations)
-        final_recommendations = random.sample(filtered_recommendations, k=number_recomendations)
+        filtered_recommendations = get_realtime_recommendations(cursor,user_id,temp_recommendations) # cleaned recommendations
+        number_filteredrecommendations = len(filtered_recommendations) # number of not completed recommendations
+        if number_recomendations <= number_filteredrecommendations:
+            final_recommendations = random.sample(filtered_recommendations, k=number_recomendations)
+        else:
+            completed_courses = list(set(temp_recommendations)-set(filtered_recommendations))
+            completed_recommendations = random.sample(completed_courses, k=number_recomendations-number_filteredrecommendations)
+            final_recommendations = filtered_recommendations+completed_recommendations
+            
         final_recommendations = [course for course in courses if course['course_id'] in final_recommendations]
         courses = final_recommendations
             
@@ -106,4 +114,3 @@ class Main:
             'recommended_courses': courses
         }]
         return request_response
-
