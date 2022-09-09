@@ -2,7 +2,6 @@ import boto3
 import main
 import response_factory
 
-s3 = boto3.client('s3')
 main_functions = main.Main()
 
 
@@ -23,8 +22,14 @@ def handler(event, context):
     try:
         student_id = main_functions.get_param(event, event_type='pathParameters', param_name='studentId')
         main_functions.set_student_id(student_id=student_id)
+        
+        # Just in case not number of recommendations are provided return 10
+        try: number_recomendations = int(main_functions.get_param(event, event_type='queryStringParameters', param_name='n'))
+        except Exception as e: number_recomendations = 10
+            
+        main_functions.set_number_recomendations(number_recomendations=number_recomendations)     
 
-        response_body = main_functions.get_student_course_recommendations(student_id=student_id)
+        response_body = main_functions.get_student_course_recommendations(student_id=student_id,number_recomendations=number_recomendations)
         response = response_factory.ResponseFactory.ok_status(response_body).toJSON()
         return response
 

@@ -1,15 +1,15 @@
 from os import path
 from aws_cdk import (
     aws_s3 as _s3,
-    aws_s3_deployment as _deploy,
-    core
-)
+    aws_s3_deployment as _deploy)
 
+import aws_cdk as core
+from constructs import Construct
 
-class bucketStack(core.Construct):
+class bucketStack(Construct):
     student_bucket: _s3.Bucket
 
-    def __init__(self, scope: core.Construct, construct_id: str, bucket_name: str, stage: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, bucket_name: str, stage: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         this_dir = path.dirname(__file__)

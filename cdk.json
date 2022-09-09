@@ -1,7 +1,6 @@
 {
   "app": "python app.py",
   "context": {
-    "@aws-cdk/core:enableStackNameDuplicates": "true",
     "aws-cdk:enableDiffNoFail": "true",
     "@aws-cdk/core:stackRelativeExports": "true",
     "@aws-cdk/aws-ecr-assets:dockerIgnoreSupport": true,
@@ -22,7 +21,7 @@
         "vpce_service_name": "com.amazonaws.us-east-1.execute-api",
         "vpce_vpc_id": "vpc-018a67ed2f2b7cccc",
         "vpce_security_groups": ["sg-09ecff4303aaf9489"],
-        "db_port":"3036",
+        "db_port":"3306",
         "db_pass":"uymVSWlRyXlL",
         "db_user":"ubits_prod_moodle",
         "vpce_subnets": ["subnet-0a2901b9df6b6846f", "subnet-0134f85cfb4ecd7b1"],
