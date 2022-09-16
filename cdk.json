@@ -39,32 +39,32 @@
       },
       "test_values": {
         "value": "test",
-        "db_name": "bitnami_moodle", //check
-        "rds_host": "ubits-test-xlearning.cjqpovg6bsbu.us-east-1.rds.amazonaws.com", //check
-        "rol_arn" : "arn:aws:iam::180456184118:role/SharedResources-LambdaExecutionRole-1OCOU5JJ2FXL3-TEST", //check
+        "db_name": "bitnami_moodle", 
+        "rds_host": "ubits-test-xlearning.cjqpovg6bsbu.us-east-1.rds.amazonaws.com", 
+        "rol_arn" : "arn:aws:iam::180456184118:role/SharedResources-LambdaExecutionRole-1OCOU5JJ2FXL3-TEST", 
         "secret_name": "db_moodle_api",
-        "layer_arn": "arn:aws:lambda:us-east-1:180456184118:layer:shared-resources-lib:7", //check
-        "security_group_id": "sg-0aba3f1c1adbfadbd",   //check
-        "vcp_id": "vpc-0d8725da655b46592", //check
-        "subnets": ["subnet-0f08325dd87653ab0","subnet-0dd29501435396be5"], //check
-        "bucket_name": "student-metrics-test", //check
-        "vpce_service_name": "com.amazonaws.us-east-1.execute-api", //no se q es
-        "vpce_vpc_id": "vpc-0d8725da655b46592", //check
-        "vpce_security_groups": ["0aba3f1c1adbfadbd"], //check
-        "db_port":"3036",  //check
-        "db_pass":"uymVSWlRyXlL",  //check
-        "db_user":"ubits_prod_moodle", //check
-        "vpce_subnets":["subnet-0f08325dd87653ab0","subnet-0dd29501435396be5"], //check
-        "subnets_mongo": ["subnet-0f08325dd87653ab0","subnet-0a5857918835b5006"], //con el primero funciona mongo, el segundo es el mismo de prod (probar si funciona)
-        "layer_arn_mongo":"arn:aws:lambda:us-east-1:180456184118:layer:PowerBI_Analytics_test:1", //check
-        "role_arn_mongo":"arn:aws:iam::180456184118:role/ubits-test-lambda-role",  //check
-        "mongodb_db": "Recommender", //check
-        "mongodb_ip": "10.0.4.199:27017", //check
-        "mongodb_password": "Jarvis123", //check
-        "mongodb_user": "Jarvis",       //check
-        "ElasticMapReduce-slave":"sg-00314e0a02a35c467", //check
-        "ElasticMapReduce-default":"sg-02e5d55c5eeb8708f", //check
-        "ElasticMapReduce-master":"sg-0f27c7972a32086f5"  //check
+        "layer_arn": "arn:aws:lambda:us-east-1:180456184118:layer:shared-resources-lib:7", 
+        "security_group_id": "sg-0aba3f1c1adbfadbd",   
+        "vcp_id": "vpc-0d8725da655b46592", 
+        "subnets": ["subnet-0f08325dd87653ab0","subnet-0dd29501435396be5"], 
+        "bucket_name": "student-metrics-test", 
+        "vpce_service_name": "com.amazonaws.us-east-1.execute-api",
+        "vpce_vpc_id": "vpc-0d8725da655b46592", 
+        "vpce_security_groups": ["0aba3f1c1adbfadbd"], 
+        "db_port":"3036",  
+        "db_pass":"uymVSWlRyXlL",  
+        "db_user":"ubits_prod_moodle", 
+        "vpce_subnets":["subnet-0f08325dd87653ab0","subnet-0dd29501435396be5"], 
+        "subnets_mongo": ["subnet-0f08325dd87653ab0","subnet-0a5857918835b5006"], 
+        "layer_arn_mongo":"arn:aws:lambda:us-east-1:180456184118:layer:PowerBI_Analytics_test:1", 
+        "role_arn_mongo":"arn:aws:iam::180456184118:role/ubits-test-lambda-role",  
+        "mongodb_db": "Recommender", 
+        "mongodb_ip": "10.0.4.199:27017", 
+        "mongodb_password": "Jarvis123", 
+        "mongodb_user": "Jarvis",       
+        "ElasticMapReduce-slave":"sg-00314e0a02a35c467", 
+        "ElasticMapReduce-default":"sg-02e5d55c5eeb8708f", 
+        "ElasticMapReduce-master":"sg-0f27c7972a32086f5"  
       },
       "prod_values": {
         "value": "prod",

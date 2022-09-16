@@ -9,10 +9,11 @@ from student_metrics.student_metrics_stack import StudentMetricsStackTEST
 
 prod = core.Environment(account='986361039434', region='us-east-1')
 dev = core.Environment(account='824404647578', region='us-east-1')
+test = core.Environment(account='180456184118', region='us-east-1')
 
 app = core.App()
 StudentMetricsStack(app, "student-metrics-test", env=core.Environment(
-    account='986361039434',
+    account='180456184118',
     region='us-east-1'), stage='test')
 
 StudentMetricsStack(app, "student-metrics", env=core.Environment(
@@ -26,7 +27,7 @@ StudentMetricsStack(app, "student-metrics-dev", env=core.Environment(
 # StudentMetricsStack(app, "student-metrics-main", stage='main')
 
 StudentMetricsStackTEST(app, "student-metrics-test-GOTOPROD", env=core.Environment(
-    account='986361039434',
+    account='180456184118',
     region='us-east-1'), stage='test')
 
 StudentMetricsStackTEST(app, "student-metrics-GOTOPROD", env=core.Environment(
